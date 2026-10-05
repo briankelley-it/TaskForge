@@ -1,24 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="TaskForge">
   <title>TaskForge</title>
   <defs>
-    <linearGradient id="tf-tile" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#6366f1"/>
-      <stop offset="1" stop-color="#4338ca"/>
+    <linearGradient id="tf-indigo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#4f46e5"/>
     </linearGradient>
     <linearGradient id="tf-ember" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#fde68a"/>
       <stop offset="1" stop-color="#f59e0b"/>
     </linearGradient>
   </defs>
-  <rect width="32" height="32" rx="8" fill="url(#tf-tile)"/>
-  <!-- "TF" monogram: the letters share one top bar. Drawn as shapes so no font is needed. -->
-  <g fill="#fff">
-    <rect x="5" y="7.5" width="12.5" height="3.6" rx="1"/>  <!-- T bar -->
-    <rect x="9.45" y="7.5" width="3.6" height="17" rx="1"/>  <!-- T stem -->
-  </g>
-  <g fill="url(#tf-ember)">
-    <rect x="17.5" y="7.5" width="9.5" height="3.6" rx="1"/>  <!-- F top bar -->
-    <rect x="17.5" y="7.5" width="3.6" height="17" rx="1"/>  <!-- F stem -->
-    <rect x="17.5" y="14.6" width="7.5" height="3.2" rx="1"/>  <!-- F middle bar -->
+  <!-- "TF" monogram, no background. Each letter is one outline so its border has no seams;
+       the letters meet along the shared top bar. -->
+  <g stroke="#1e1b4b" stroke-width="1.5" stroke-linejoin="round">
+    <path fill="url(#tf-indigo)" d="M2 3H16V9H12V29H6V9H2Z"/>
+    <path fill="url(#tf-ember)" d="M16 3H30V9H22V14H27V19.5H22V29H16Z"/>
   </g>
 </svg>
