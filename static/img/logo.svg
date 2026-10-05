@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="TaskForge">
+  <title>TaskForge</title>
+  <defs>
+    <linearGradient id="tf-tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#4338ca"/>
+    </linearGradient>
+    <linearGradient id="tf-ember" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <!-- Tile -->
+  <rect width="32" height="32" rx="8" fill="url(#tf-tile)"/>
+  <!-- Three Kanban columns: To Do, In Progress, Done. Work flows right and "heats up". -->
+  <rect x="6.5" y="8" width="5" height="16" rx="1.6" fill="#fff" fill-opacity=".55"/>
+  <rect x="13.5" y="8" width="5" height="11.5" rx="1.6" fill="#fff" fill-opacity=".9"/>
+  <rect x="20.5" y="8" width="5" height="7" rx="1.6" fill="url(#tf-ember)"/>
+  <!-- Spark under the Done column -->
+  <path d="M23 18.2l.9 1.9 1.9.9-1.9.9-.9 1.9-.9-1.9-1.9-.9 1.9-.9z" fill="#fde68a"/>
+</svg>
