@@ -19,16 +19,20 @@
   <img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white">
   <img alt="Docker" src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white">
   <a href="https://github.com/briankelley-it/TaskForge/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/briankelley-it/TaskForge/actions/workflows/ci.yml/badge.svg"></a>
-  <img alt="Coverage 99%" src="https://img.shields.io/badge/coverage-99%25-brightgreen">
+  <a href="https://github.com/briankelley-it/TaskForge/actions/workflows/ci.yml"><img alt="Coverage" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/briankelley-it/TaskForge/badges/coverage.json"></a>
 </p>
 
 ---
 
 ## Screenshots
 
-| Dashboard | Kanban board | Mobile |
-| --- | --- | --- |
-| <!-- ![Dashboard](docs/screenshots/dashboard.png) --> _Screenshot coming soon_ | <!-- ![Kanban board](docs/screenshots/board.png) --> _Screenshot coming soon_ | <!-- ![Mobile view](docs/screenshots/mobile.png) --> _Screenshot coming soon_ |
+**Sign up, or try the one-click demo**
+
+![TaskForge sign-up page with the one-click demo login](docs/screenshots/signup.jpg)
+
+**Workspace dashboard**
+
+![TaskForge dashboard with summary cards and recently viewed projects](docs/screenshots/dashboard.png)
 
 ## Features
 
@@ -47,7 +51,7 @@
 - **Responsive design.** Works on a phone, with a dark mode toggle that remembers your choice.
 - **Workspace dashboard.** Summary cards (created, shared, due this week, my open tasks) with
   avatar stacks, your team, starred projects, and **recently viewed** projects shown as
-  thumbnail cards drawn from each board's real task counts.
+  cards with cover images.
 - **Global search.** Projects and tasks drop down as you type.
 - **Notifications.** A bell with an unread count for teammates' changes in your projects.
 - **Project covers.** Each card shows a placeholder until the owner uploads a cover image.
@@ -60,22 +64,19 @@
 
 ## Quick start
 
-You need [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+You need [Docker Desktop](https://www.docker.com/products/docker-desktop/). Then it's one command:
 
 ```bash
-git clone https://github.com/briankelley-it/TaskForge.git
-cd TaskForge
-cp .env.example .env
 docker compose up
 ```
 
-In a second terminal, load the demo data:
+Open http://localhost:8000 and click **Log in to the demo**, or sign in as
+`demo@taskforge.dev` / `taskforge-demo`.
 
-```bash
-docker compose exec web python manage.py seed_demo
-```
-
-Open http://localhost:8000 and log in as `demo@taskforge.dev` / `taskforge-demo`.
+The first start builds the image, creates the database, runs migrations and seeds the demo
+workspace (2 projects, 19 tasks). No `.env` file is needed: development defaults are built in.
+To change a setting or add Google sign-in keys, copy `.env.example` to `.env` and edit it.
+`docker compose exec web python manage.py seed_demo` resets the demo data at any time.
 
 While `docker compose up` is running, saving a Python file, template or stylesheet rebuilds the
 CSS, restarts Django and **refreshes the browser tab automatically** (django-browser-reload).
@@ -86,7 +87,7 @@ CSS, restarts Django and **refreshes the browser tab automatically** (django-bro
 docker compose exec web pytest --cov
 ```
 
-The suite has 200+ tests covering models, services, every view and HTMX endpoint,
+The suite has 300 tests covering models, services, every view and HTMX endpoint,
 permissions and query counts. Coverage is about 99%. CI runs ruff, the tests against Postgres 16,
 and `manage.py check --deploy` on every push.
 
@@ -97,6 +98,9 @@ ruff check . && ruff format .
 ```
 
 ## Architecture and decisions
+
+> New to the code? [docs/CODE_TOUR.md](docs/CODE_TOUR.md) walks through each feature
+> file by file and ends with practice interview questions.
 
 ```
 config/     settings split into base / dev / test / prod, all read from the environment
@@ -118,8 +122,8 @@ them into the page, so:
 
 Interactions that need to update more than one area use response headers. For example, saving
 a task returns `204` with `HX-Trigger: {"boardChanged", "closeModal"}`, so the board reloads
-itself and the modal closes. The only hand-written JavaScript is about 70 lines for the modal,
-dark mode and SortableJS.
+itself and the modal closes. The only hand-written JavaScript is about 200 lines (`static/js/app.js`) for things HTMX
+can't do alone: the modal, dark mode, drag and drop, toasts and the auth-page helpers.
 
 ### How permissions work
 
