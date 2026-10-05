@@ -1,0 +1,26 @@
+{% load taskforge %}
+<div class="flex items-center justify-between px-1 pb-3">
+  <h2 class="text-sm font-semibold text-ink dark:text-white">Notifications</h2>
+  <span class="text-xs text-muted">From your projects</span>
+</div>
+{% if items %}
+  <ol class="-mx-1 max-h-96 space-y-0.5 overflow-y-auto">
+    {% for item in items %}
+      <li>
+        <a href="{% if item.target_task %}{{ item.target_task.get_absolute_url }}{% else %}{% url 'activity:feed' item.project_id %}{% endif %}"
+           class="flex gap-3 rounded-xl px-2 py-2 hover:bg-canvas dark:hover:bg-white/5 {% if not seen_before or item.created_at > seen_before %}bg-indigo-50/60 dark:bg-indigo-500/10{% endif %}">
+          {% avatar item.actor "sm" %}
+          <span class="min-w-0 text-[13px] leading-snug text-slate-600 dark:text-slate-300">
+            <span class="font-semibold text-ink dark:text-white">{{ item.actor.name|default:"Someone" }}</span>
+            {{ item.get_verb_display }} “{{ item.target_title }}” {{ item.detail }}
+            <span class="mt-0.5 block text-xs text-muted">{{ item.project.name }} · {{ item.created_at|ago }}</span>
+          </span>
+        </a>
+      </li>
+    {% endfor %}
+  </ol>
+{% else %}
+  <p class="px-1 py-6 text-center text-sm text-muted">You're all caught up. When teammates change tasks in your projects, it shows up here.</p>
+{% endif %}
+{# Opening the panel marked everything read: clear the bell's badge too (out-of-band swap). #}
+<span id="notification-badge" hx-swap-oob="true" hx-get="{% url 'notifications:badge' %}" hx-trigger="every 60s" hx-target="this" hx-swap="outerHTML"></span>

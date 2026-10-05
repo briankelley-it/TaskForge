@@ -2,10 +2,14 @@ from django.apps import apps
 from django.contrib import admin
 from django.urls import include, path
 
-from projects.views import home
+from projects.views import home, search
+from tasks.views import my_tasks
 
 urlpatterns = [
     path("", home, name="home"),
+    path("search/", search, name="search"),
+    path("my-tasks/", my_tasks, name="my_tasks"),
+    path("notifications/", include("activity.notification_urls")),
     path("projects/", include("projects.urls")),
     path("projects/<int:project_pk>/", include("tasks.urls")),
     path("projects/<int:project_pk>/activity/", include("activity.urls")),
