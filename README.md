@@ -32,7 +32,10 @@
 
 ## Features
 
-- **Accounts.** Sign up, log in and reset your password with email only (django-allauth).
+- **Accounts.** Split-screen login and sign-up pages built on django-allauth, with:
+  - email login, password reset and a "remember me" switch
+  - show/hide password and a password strength meter
+  - optional "Continue with Google" (set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`)
 - **Projects and teams.** Create projects and invite teammates by email. Owners manage settings and members.
 - **Kanban board.** Drag tasks between To Do, In Progress and Done, or reorder them. Changes save instantly with no page reload.
 - **Task modals.** Create, edit and view tasks in modal forms that also work with JavaScript turned off.
