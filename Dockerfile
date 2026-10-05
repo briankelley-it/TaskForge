@@ -16,10 +16,12 @@ RUN tailwindcss -i assets/tailwind.css -o static/css/app.css --minify
 
 # ---- Stage 2: the Django application ----
 FROM python:3.12-slim AS app
+# The image runs production settings by default; docker-compose.yml switches it to dev.
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DJANGO_SETTINGS_MODULE=config.settings.prod
 
 WORKDIR /app
 

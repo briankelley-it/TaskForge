@@ -28,7 +28,8 @@ known-first-party = ["accounts", "activity", "config", "projects", "tasks", "tes
 DJANGO_SETTINGS_MODULE = "config.settings.test"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "--strict-markers"
+# --ds wins over a DJANGO_SETTINGS_MODULE env var (docker-compose sets dev), so tests always use test settings.
+addopts = "--strict-markers --ds=config.settings.test"
 filterwarnings = [
     # Whitenoise warns when collectstatic hasn't run; tests don't need collected files.
     "ignore:No directory at:UserWarning",

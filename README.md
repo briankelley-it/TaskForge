@@ -146,9 +146,10 @@ otherwise multiply the rows and inflate the counts.
 
 ## Deploying
 
-1. Build the image from `Dockerfile`. It collects static files and runs gunicorn.
-2. Set `DJANGO_SETTINGS_MODULE=config.settings.prod`, `SECRET_KEY`, `DATABASE_URL`,
-   `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS`.
+1. Build the image from `Dockerfile`. It compiles the CSS, collects static files and runs
+   gunicorn with production settings by default.
+2. Set `SECRET_KEY` (50+ random characters), `DATABASE_URL`, `ALLOWED_HOSTS` and
+   `CSRF_TRUSTED_ORIGINS`. `PORT` and `WEB_CONCURRENCY` are optional.
 3. Run `python manage.py migrate` as a release step. Optionally run
    `python manage.py seed_demo --password <something>`.
 

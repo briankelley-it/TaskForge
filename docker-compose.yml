@@ -19,6 +19,9 @@ services:
       args:
         REQUIREMENTS: requirements/dev.txt
     env_file: .env
+    environment:
+      # The image defaults to production settings; local development uses dev.
+      DJANGO_SETTINGS_MODULE: config.settings.dev
     command: ["sh", "scripts/dev-entrypoint.sh"]
     volumes:
       # Mount the code so edits show up without rebuilding the image.
