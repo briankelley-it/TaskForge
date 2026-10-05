@@ -6,3 +6,4 @@ pytest-cov~=7.1
 factory_boy~=3.3
 ruff~=0.16.10
 pre-commit~=4.6
+django-browser-reload~=1.21
