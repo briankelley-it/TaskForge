@@ -36,7 +36,7 @@
     <div class="flex shrink-0 gap-2">
       {% include "tasks/partials/export_link.html" %}
       <a href="{% url 'tasks:create' project.pk %}"
-         hx-get="{% url 'tasks:create' project.pk %}" hx-target="#modal"
+         hx-get="{% url 'tasks:create' project.pk %}" hx-target="#modal" hx-swap="innerHTML"
          class="btn-primary">+ New task</a>
     </div>
   </div>

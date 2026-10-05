@@ -19,6 +19,8 @@ document.addEventListener("click", (event) => {
 function closeModal() {
   const modal = document.getElementById("modal");
   if (modal) modal.innerHTML = "";
+  // Belt and braces: remove any dialog that ended up outside #modal.
+  document.querySelectorAll("[data-modal-backdrop]").forEach((el) => el.remove());
 }
 
 document.addEventListener("click", (event) => {

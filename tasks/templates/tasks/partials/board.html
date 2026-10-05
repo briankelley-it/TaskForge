@@ -1,9 +1,11 @@
 {# The three columns. Reloads itself (keeping the current filters) whenever the server #}
-{# sends HX-Trigger: boardChanged. #}
+{# sends HX-Trigger: boardChanged. hx-disinherit stops its outerHTML swap leaking into the #}
+{# cards, which would otherwise replace #modal instead of filling it. #}
 <div id="board"
      hx-get="{% url 'tasks:board' project.pk %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
      hx-trigger="boardChanged from:body"
      hx-swap="outerHTML"
+     hx-disinherit="*"
      class="grid gap-4 md:grid-cols-3">
   {% if filtering %}
     <p class="text-sm text-slate-500 md:col-span-3 dark:text-slate-400">
@@ -19,7 +21,7 @@
           <span class="rounded-full bg-white px-2 text-xs font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-300">{{ column.tasks|length }}</span>
         </h2>
         <a href="{% url 'tasks:create' project.pk %}?status={{ column.status }}"
-           hx-get="{% url 'tasks:create' project.pk %}?status={{ column.status }}" hx-target="#modal"
+           hx-get="{% url 'tasks:create' project.pk %}?status={{ column.status }}" hx-target="#modal" hx-swap="innerHTML"
            class="rounded p-1 text-slate-400 hover:bg-white hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
            aria-label="Add a task to {{ column.label }}">+</a>
       </header>

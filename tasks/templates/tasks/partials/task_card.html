@@ -1,6 +1,6 @@
 <li id="task-{{ task.pk }}"
     data-move-url="{% url 'tasks:move' project.pk task.pk %}"
-    hx-get="{% url 'tasks:detail' project.pk task.pk %}" hx-target="#modal"
+    hx-get="{% url 'tasks:detail' project.pk task.pk %}" hx-target="#modal" hx-swap="innerHTML"
     hx-trigger="click, keyup[key=='Enter']"
     role="button" tabindex="0" aria-label="Open {{ task.title }}"
     class="card cursor-grab select-none p-3 transition hover:border-indigo-300 active:cursor-grabbing dark:hover:border-indigo-700 {% if task.is_overdue %}border-l-4 border-l-red-500{% elif task.is_due_soon %}border-l-4 border-l-amber-400{% endif %}">

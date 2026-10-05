@@ -10,7 +10,7 @@
         <h2 id="modal-title" class="mt-1 text-xl font-semibold leading-snug">{{ task.title }}</h2>
       </div>
       <div class="flex shrink-0 items-center gap-2">
-        <a href="{{ task.get_edit_url }}" hx-get="{{ task.get_edit_url }}" hx-target="#modal" class="btn-secondary">Edit</a>
+        <a href="{{ task.get_edit_url }}" hx-get="{{ task.get_edit_url }}" hx-target="#modal" hx-swap="innerHTML" class="btn-secondary">Edit</a>
         {% if not page %}<button type="button" data-close-modal aria-label="Close" class="px-1 text-xl leading-none text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">&times;</button>{% endif %}
       </div>
     </header>

@@ -9,7 +9,7 @@
       <h2 id="modal-title" class="text-lg font-semibold">{% if task %}Edit task{% else %}New task{% endif %}</h2>
       {% if not page %}<button type="button" data-close-modal aria-label="Close" class="text-xl leading-none text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">&times;</button>{% endif %}
     </div>
-    <form method="post" action="{{ action }}" hx-post="{{ action }}" hx-target="#modal">
+    <form method="post" action="{{ action }}" hx-post="{{ action }}" hx-target="#modal" hx-swap="innerHTML">
       {% csrf_token %}
       {% include "components/form_fields.html" %}
       <div class="flex flex-wrap gap-3">
