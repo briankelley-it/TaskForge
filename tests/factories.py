@@ -2,7 +2,7 @@ import factory
 
 from accounts.models import User
 from projects.models import Membership, Project
-from tasks.models import Task
+from tasks.models import Comment, Task
 
 DEFAULT_PASSWORD = "correct-horse-battery-staple"
 
@@ -59,3 +59,12 @@ class TaskFactory(factory.django.DjangoModelFactory):
     @factory.lazy_attribute
     def position(self):
         return Task.objects.filter(project=self.project, status=self.status).count()
+
+
+class CommentFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Comment
+
+    task = factory.SubFactory(TaskFactory)
+    author = factory.SelfAttribute("task.project.owner")
+    body = factory.Faker("sentence")

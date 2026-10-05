@@ -12,7 +12,8 @@ pytestmark = pytest.mark.django_db
 def test_str_and_url():
     task = TaskFactory(title="Write README")
     assert str(task) == "Write README"
-    assert task.get_absolute_url() == f"/projects/{task.project_id}/tasks/{task.pk}/edit/"
+    assert task.get_absolute_url() == f"/projects/{task.project_id}/tasks/{task.pk}/"
+    assert task.get_edit_url() == f"/projects/{task.project_id}/tasks/{task.pk}/edit/"
 
 
 def test_defaults():

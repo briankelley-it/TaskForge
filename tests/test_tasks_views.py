@@ -109,14 +109,14 @@ class TestCreateTask:
 class TestUpdateTask:
     def test_htmx_get_prefills_form(self, logged_in_client, project, htmx):
         task = TaskFactory(project=project, title="Old")
-        response = logged_in_client.get(task.get_absolute_url(), **htmx)
+        response = logged_in_client.get(task.get_edit_url(), **htmx)
         assertContains(response, 'value="Old"')
         assertContains(response, reverse("tasks:delete", args=[project.pk, task.pk]))
 
     def test_htmx_post_saves(self, logged_in_client, project, htmx):
         task = TaskFactory(project=project)
         response = logged_in_client.post(
-            task.get_absolute_url(),
+            task.get_edit_url(),
             {"title": "New", "status": "done", "priority": "low", "due_date": "2030-01-31"},
             **htmx,
         )
@@ -127,14 +127,14 @@ class TestUpdateTask:
     def test_invalid_post_returns_form(self, logged_in_client, project, htmx):
         task = TaskFactory(project=project)
         response = logged_in_client.post(
-            task.get_absolute_url(), {"title": "", "status": "x", "priority": "low"}, **htmx
+            task.get_edit_url(), {"title": "", "status": "x", "priority": "low"}, **htmx
         )
         assert response.status_code == 200
         assert response.context["form"].errors
 
     def test_plain_get_renders_full_page(self, logged_in_client, project):
         task = TaskFactory(project=project)
-        assertTemplateUsed(logged_in_client.get(task.get_absolute_url()), "tasks/task_form.html")
+        assertTemplateUsed(logged_in_client.get(task.get_edit_url()), "tasks/task_form.html")
 
 
 class TestDeleteTask:

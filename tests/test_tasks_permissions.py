@@ -14,10 +14,12 @@ TASK_URLS = [
     ("tasks:board", "get", False),
     ("tasks:create", "get", False),
     ("tasks:create", "post", False),
+    ("tasks:detail", "get", True),
     ("tasks:update", "get", True),
     ("tasks:update", "post", True),
     ("tasks:delete", "post", True),
     ("tasks:move", "post", True),
+    ("tasks:comment_create", "post", True),
 ]
 
 
@@ -40,11 +42,12 @@ def test_logged_out_user_is_redirected_to_login(client, task, name, method, need
 @pytest.mark.parametrize("name,method,needs_task", TASK_URLS)
 def test_non_member_gets_404(client, outsider, task, name, method, needs_task):
     client.force_login(outsider)
-    data = {"title": "Hacked", "status": "done", "priority": "low", "position": "0"}
+    data = {"title": "Hacked", "status": "done", "priority": "low", "position": "0", "body": "x"}
     response = getattr(client, method)(build_url(name, task.project_id, task, needs_task), data)
     assert response.status_code == 404
     task.refresh_from_db()
     assert (task.title, task.status) == ("Secret", "todo")
+    assert not task.comments.exists()
 
 
 @pytest.mark.parametrize("name,method", [(n, m) for n, m, needs_task in TASK_URLS if needs_task])
