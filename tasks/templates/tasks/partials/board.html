@@ -30,3 +30,5 @@
     </section>
   {% endfor %}
 </div>
+{# On HTMX refreshes, also update the Export CSV link (it sits outside #board) to match the filters. #}
+{% if request.headers.hx_request %}{% include "tasks/partials/export_link.html" with oob=True %}{% endif %}

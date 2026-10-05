@@ -33,9 +33,12 @@
       <noscript><button type="submit" class="btn-secondary">Filter</button></noscript>
       <a href="{% url 'tasks:board' project.pk %}" class="link px-1">Clear</a>
     </form>
-    <a href="{% url 'tasks:create' project.pk %}"
-       hx-get="{% url 'tasks:create' project.pk %}" hx-target="#modal"
-       class="btn-primary shrink-0">+ New task</a>
+    <div class="flex shrink-0 gap-2">
+      {% include "tasks/partials/export_link.html" %}
+      <a href="{% url 'tasks:create' project.pk %}"
+         hx-get="{% url 'tasks:create' project.pk %}" hx-target="#modal"
+         class="btn-primary">+ New task</a>
+    </div>
   </div>
 
   {% include "tasks/partials/board.html" %}

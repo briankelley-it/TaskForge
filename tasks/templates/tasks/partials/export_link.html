@@ -1,0 +1,4 @@
+{# Export button. Its link carries the board's current filters, so it downloads what's on screen. #}
+{# The board partial re-sends it out of band (oob=True) whenever the filters change. #}
+<a href="{% url 'tasks:export_csv' project.pk %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
+   id="export-csv" class="btn-secondary" download{% if oob %} hx-swap-oob="true"{% endif %}>Export CSV</a>

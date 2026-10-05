@@ -8,6 +8,7 @@ app_name = "tasks"
 urlpatterns = [
     path("", views.BoardView.as_view(), name="board"),
     path("tasks/new/", views.task_create, name="create"),
+    path("tasks/export.csv", views.export_csv, name="export_csv"),
     path("tasks/<int:pk>/", views.task_detail, name="detail"),
     path("tasks/<int:pk>/edit/", views.task_update, name="update"),
     path("tasks/<int:pk>/delete/", views.task_delete, name="delete"),

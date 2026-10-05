@@ -8,6 +8,7 @@ HTMX flow for modals:
 Without HTMX, the same URLs render full pages and redirect, so nothing depends on JS.
 """
 
+import csv
 import json
 
 from django.contrib import messages
@@ -15,6 +16,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
@@ -151,6 +153,38 @@ def task_move(request: HttpRequest, project_pk: int, pk: int) -> HttpResponse:
     services.move_task(task, status=status, position=position, actor=request.user)
     response = HttpResponse(status=204)
     response["HX-Trigger"] = "boardChanged"
+    return response
+
+
+@login_required
+def export_csv(request: HttpRequest, project_pk: int) -> HttpResponse:
+    """Download the project's tasks as CSV, honouring the board's current filters."""
+    project = get_membership(request.user, project_pk).project
+    tasks = BoardFilterForm(request.GET).apply(
+        project.tasks.select_related("assignee", "created_by"), request.user
+    )
+    # Board order: To Do, In Progress, Done (not alphabetical), then top to bottom.
+    column_order = {status: index for index, status in enumerate(Task.Status.values)}
+    tasks = sorted(tasks, key=lambda t: (column_order[t.status], t.position))
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    filename = slugify(project.name) or "project"
+    response["Content-Disposition"] = f'attachment; filename="{filename}-tasks.csv"'
+    writer = csv.writer(response)
+    writer.writerow(
+        ["Title", "Status", "Priority", "Due date", "Assignee", "Created by", "Created at"]
+    )
+    for task in tasks:
+        writer.writerow(
+            [
+                task.title,
+                task.get_status_display(),
+                task.get_priority_display(),
+                task.due_date.isoformat() if task.due_date else "",
+                task.assignee.email if task.assignee else "",
+                task.created_by.email if task.created_by else "",
+                task.created_at.isoformat(timespec="seconds"),
+            ]
+        )
     return response
 
 
