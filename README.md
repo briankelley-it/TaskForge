@@ -152,15 +152,3 @@ otherwise multiply the rows and inflate the counts.
    `CSRF_TRUSTED_ORIGINS`. `PORT` and `WEB_CONCURRENCY` are optional.
 3. Run `python manage.py migrate` as a release step. Optionally run
    `python manage.py seed_demo --password <something>`.
-
-## What I learned
-
-### Django
-
-### HTMX
-
-### Testing
-
-### Docker and deployment
-
-### What I'd do next
