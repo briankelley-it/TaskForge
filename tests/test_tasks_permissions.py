@@ -14,6 +14,7 @@ TASK_URLS = [
     ("tasks:board", "get", False),
     ("tasks:create", "get", False),
     ("tasks:create", "post", False),
+    ("tasks:export_csv", "get", False),
     ("tasks:detail", "get", True),
     ("tasks:update", "get", True),
     ("tasks:update", "post", True),
