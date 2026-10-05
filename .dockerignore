@@ -1,0 +1,13 @@
+.git
+.github
+.venv
+venv
+.env
+bin
+staticfiles
+htmlcov
+.coverage
+.pytest_cache
+.ruff_cache
+**/__pycache__
+static/css/app.css

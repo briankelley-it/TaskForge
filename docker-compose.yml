@@ -1,0 +1,33 @@
+# Local development: Django's runserver with live reload, plus Postgres 16.
+services:
+  db:
+    image: postgres:16-alpine
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_HOST_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      args:
+        REQUIREMENTS: requirements/dev.txt
+    env_file: .env
+    command: ["sh", "scripts/dev-entrypoint.sh"]
+    volumes:
+      # Mount the code so edits show up without rebuilding the image.
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
