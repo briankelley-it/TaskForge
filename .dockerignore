@@ -11,3 +11,4 @@ htmlcov
 .ruff_cache
 **/__pycache__
 static/css/app.css
+media

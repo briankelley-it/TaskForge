@@ -1,6 +1,26 @@
+import uuid
+from pathlib import Path
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
+
+COVER_MAX_MB = 5
+COVER_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif"]
+# Shown on cards until the owner uploads a cover.
+COVER_PLACEHOLDER_URL = "https://placehold.co/600x400"
+
+
+def cover_upload_path(project: "Project", filename: str) -> str:
+    """covers/<random>.<ext>: a random name, so uploads never collide or reveal filenames."""
+    return f"covers/{uuid.uuid4().hex}{Path(filename).suffix.lower()}"
+
+
+def validate_cover_size(file) -> None:
+    if file.size > COVER_MAX_MB * 1024 * 1024:
+        raise ValidationError(f"Cover images can be up to {COVER_MAX_MB} MB.")
 
 
 class ProjectQuerySet(models.QuerySet["Project"]):
@@ -23,6 +43,13 @@ class Project(models.Model):
     members = models.ManyToManyField(
         settings.AUTH_USER_MODEL, through="Membership", related_name="projects"
     )
+    # ImageField checks with Pillow that the upload really is an image, not just its extension.
+    cover = models.ImageField(
+        upload_to=cover_upload_path,
+        blank=True,
+        validators=[FileExtensionValidator(COVER_EXTENSIONS), validate_cover_size],
+        help_text=f"JPG, PNG, WebP or GIF, up to {COVER_MAX_MB} MB.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -36,6 +63,10 @@ class Project(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("tasks:board", kwargs={"project_pk": self.pk})
+
+    @property
+    def cover_url(self) -> str:
+        return self.cover.url if self.cover else COVER_PLACEHOLDER_URL
 
 
 class Membership(models.Model):

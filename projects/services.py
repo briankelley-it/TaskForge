@@ -23,9 +23,11 @@ class InviteResult(StrEnum):
 
 
 @transaction.atomic
-def create_project(*, owner: User, name: str, description: str = "") -> Project:
+def create_project(*, owner: User, name: str, description: str = "", cover=None) -> Project:
     """Create a project and make its creator the owner member, together or not at all."""
-    project = Project.objects.create(owner=owner, name=name, description=description)
+    project = Project.objects.create(
+        owner=owner, name=name, description=description, cover=cover or ""
+    )
     Membership.objects.create(project=project, user=owner, role=Membership.Role.OWNER)
     return project
 
@@ -67,3 +69,21 @@ def toggle_star(membership: Membership) -> bool:
     membership.is_starred = not membership.is_starred
     membership.save(update_fields=["is_starred"])
     return membership.is_starred
+
+
+def set_cover(project: Project, image) -> None:
+    """Replace the project's cover image, deleting the old file so uploads don't pile up."""
+    # Read the stored name: a bound ModelForm may already have put the new file on `project`.
+    old = Project.objects.values_list("cover", flat=True).get(pk=project.pk)
+    project.cover = image
+    project.save(update_fields=["cover", "updated_at"])
+    if old and old != project.cover.name:
+        project.cover.storage.delete(old)
+
+
+def remove_cover(project: Project) -> None:
+    """Go back to the placeholder image."""
+    if project.cover:
+        project.cover.delete(save=False)
+    project.cover = ""
+    project.save(update_fields=["cover", "updated_at"])

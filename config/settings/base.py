@@ -112,4 +112,9 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
+# Uploaded files (project cover images). In production, point MEDIA_ROOT at a persistent
+# volume, or swap the "default" storage for S3-style object storage.
+MEDIA_URL = "media/"
+MEDIA_ROOT = env.path("MEDIA_ROOT", default=BASE_DIR / "media")
+
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="TaskForge <noreply@taskforge.local>")

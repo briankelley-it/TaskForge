@@ -4,3 +4,4 @@ django-environ~=0.14.0
 psycopg[binary]~=3.3
 gunicorn~=26.2
 whitenoise~=6.12
+Pillow~=12.3
