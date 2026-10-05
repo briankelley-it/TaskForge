@@ -2,6 +2,7 @@ import factory
 
 from accounts.models import User
 from projects.models import Membership, Project
+from tasks.models import Task
 
 DEFAULT_PASSWORD = "correct-horse-battery-staple"
 
@@ -41,3 +42,20 @@ class MembershipFactory(factory.django.DjangoModelFactory):
     project = factory.SubFactory(ProjectFactory)
     user = factory.SubFactory(UserFactory)
     role = Membership.Role.MEMBER
+
+
+class TaskFactory(factory.django.DjangoModelFactory):
+    """A task at the bottom of its column, like services.create_task makes."""
+
+    class Meta:
+        model = Task
+
+    project = factory.SubFactory(ProjectFactory)
+    title = factory.Sequence(lambda n: f"Task {n}")
+    status = Task.Status.TODO
+    priority = Task.Priority.MEDIUM
+    created_by = factory.SelfAttribute("project.owner")
+
+    @factory.lazy_attribute
+    def position(self):
+        return Task.objects.filter(project=self.project, status=self.status).count()

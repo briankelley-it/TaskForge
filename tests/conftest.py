@@ -30,3 +30,9 @@ def member(project):
 def outsider(db):
     """A logged-in user with no access to `project`."""
     return UserFactory()
+
+
+@pytest.fixture
+def htmx():
+    """Extra request kwargs that make the test client look like HTMX."""
+    return {"HTTP_HX_REQUEST": "true"}

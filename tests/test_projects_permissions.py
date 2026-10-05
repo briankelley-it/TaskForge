@@ -16,7 +16,7 @@ pytestmark = pytest.mark.django_db
 
 # (url name, HTTP method, owner_only)
 PROJECT_URLS = [
-    ("projects:detail", "get", False),
+    ("projects:members", "get", False),
     ("projects:update", "get", True),
     ("projects:update", "post", True),
     ("projects:delete", "get", True),
@@ -75,7 +75,7 @@ def test_logged_out_user_is_redirected_from_dashboard_and_create(client, name):
 
 
 def test_nonexistent_project_is_404(logged_in_client):
-    assert logged_in_client.get(reverse("projects:detail", args=[99999])).status_code == 404
+    assert logged_in_client.get(reverse("projects:members", args=[99999])).status_code == 404
 
 
 def test_get_membership_rejects_anonymous_user(project):

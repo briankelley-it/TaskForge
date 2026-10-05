@@ -49,16 +49,16 @@ class TestCreateProject:
         assert not Project.objects.exists()
 
 
-class TestProjectDetail:
+class TestMembersPage:
     def test_owner_sees_edit_controls_and_invite_form(self, logged_in_client, project):
-        response = logged_in_client.get(project.get_absolute_url())
+        response = logged_in_client.get(reverse("projects:members", args=[project.pk]))
         assertContains(response, project.name)
         assertContains(response, reverse("projects:update", args=[project.pk]))
         assertContains(response, reverse("projects:invite_member", args=[project.pk]))
 
     def test_member_sees_project_without_owner_controls(self, client, project, member):
         client.force_login(member)
-        response = client.get(project.get_absolute_url())
+        response = client.get(reverse("projects:members", args=[project.pk]))
         assert response.status_code == 200
         assertNotContains(response, reverse("projects:update", args=[project.pk]))
         assertNotContains(response, reverse("projects:invite_member", args=[project.pk]))
@@ -112,7 +112,7 @@ class TestInviteMember:
         response = logged_in_client.post(
             self.url(project), {"email": "grace@example.com"}, follow=True
         )
-        assertRedirects(response, project.get_absolute_url())
+        assertRedirects(response, reverse("projects:members", args=[project.pk]))
         assertContains(response, "Added")
 
     def test_get_not_allowed(self, logged_in_client, project):
