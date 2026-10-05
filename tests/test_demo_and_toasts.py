@@ -70,3 +70,11 @@ def test_messages_render_as_auto_dismissing_toasts(client, demo):
     assertContains(response, 'id="toasts"')
     assertContains(response, "data-toast")
     assertContains(response, "exploring the TaskForge demo")
+
+
+def test_missing_demo_settings_hide_the_panel_instead_of_crashing(client, demo, settings):
+    del settings.DEMO_LOGIN_ENABLED
+    response = client.get(reverse("account_signup"))
+    assert response.status_code == 200
+    assertNotContains(response, "Just want to look around?")
+    assert client.post(reverse("demo_login")).status_code == 404

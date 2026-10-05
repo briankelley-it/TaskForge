@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 
-from .demo import demo_user
+from .demo import demo_details, demo_user
 
 
 def auth_options(request) -> dict:
@@ -15,7 +15,8 @@ def auth_options(request) -> dict:
     def demo_account():
         if demo_user() is None:
             return {}
-        return {"email": settings.DEMO_EMAIL, "password": settings.DEMO_PASSWORD}
+        email, password = demo_details()
+        return {"email": email, "password": password}
 
     return {
         "google_login_enabled": bool(settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET),
