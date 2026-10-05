@@ -79,6 +79,7 @@ class TestAuthPages:
         response = client.post(
             reverse("account_signup"),
             {
+                "display_name": "New Person",
                 "email": "new@example.com",
                 "password1": DEFAULT_PASSWORD,
                 "password2": DEFAULT_PASSWORD,
@@ -86,6 +87,7 @@ class TestAuthPages:
         )
         assert response.status_code == 302
         user = User.objects.get(email="new@example.com")
+        assert user.display_name == "New Person"
         assert client.session["_auth_user_id"] == str(user.pk)
 
     def test_login_with_email(self, client):
