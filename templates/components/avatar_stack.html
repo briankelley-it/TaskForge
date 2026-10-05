@@ -1,0 +1,1 @@
+{% load taskforge %}<span class="avatar-stack inline-flex items-center">{% for u in shown %}{% avatar u size %}{% endfor %}</span>{% if extra %}<span class="ml-2 text-xs text-muted">+ {{ extra|stringformat:"02d" }}</span>{% endif %}

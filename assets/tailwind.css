@@ -11,38 +11,74 @@
 @source "../tasks/templates";
 @source "../activity/templates";
 @source "../static/js/app.js";
+@source "../projects/templatetags";
 
 /* Dark mode follows a "dark" class on <html> so it can be toggled, not just follow the OS. */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Design tokens. Soft lavender-grey canvas, white cards with a whisper of shadow,
+ * one indigo accent. Everything else in the UI is built from these.
+ */
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-canvas: #f4f5fa;
+  --color-canvas-dark: #0f1117;
+  --color-surface-dark: #181b24;
+  --color-line: #eceef5;
+  --color-line-dark: #262a36;
+  --color-ink: #1d2030;
+  --color-muted: #8a8fa3;
+
+  --shadow-soft: 0 1px 2px rgb(29 32 48 / 0.04), 0 6px 20px -8px rgb(29 32 48 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(29 32 48 / 0.05), 0 16px 32px -12px rgb(29 32 48 / 0.16);
+}
 
 /* Native controls (date pickers, scrollbars, select menus) follow the theme too. */
 html.dark {
   color-scheme: dark;
 }
 
-/* Reusable building blocks. @utility (not plain classes) so they can be combined with @apply. */
+/* ---- Reusable building blocks (@utility so they can be combined with @apply) ---- */
+
 @utility btn {
-  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2
-    text-sm font-medium transition focus:outline-none focus-visible:ring-2
-    focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50
-    dark:focus-visible:ring-offset-slate-900;
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2
+    text-sm font-medium whitespace-nowrap transition focus:outline-none focus-visible:ring-2
+    focus-visible:ring-indigo-500/60 focus-visible:ring-offset-2 disabled:opacity-50
+    dark:focus-visible:ring-offset-canvas-dark;
 }
 @utility btn-primary {
-  @apply btn bg-indigo-600 text-white hover:bg-indigo-500;
+  @apply btn bg-indigo-500 text-white shadow-sm shadow-indigo-500/20 hover:bg-indigo-600;
 }
 @utility btn-secondary {
-  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50
-    dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700;
+  @apply btn border border-line bg-white text-slate-600 hover:border-slate-300 hover:text-ink
+    dark:border-line-dark dark:bg-surface-dark dark:text-slate-300 dark:hover:text-white;
 }
 @utility btn-danger {
-  @apply btn bg-red-600 text-white hover:bg-red-500;
+  @apply btn bg-red-500 text-white hover:bg-red-600;
 }
 @utility card {
-  @apply rounded-xl border border-slate-200 bg-white shadow-sm
-    dark:border-slate-700 dark:bg-slate-800;
+  @apply rounded-2xl border border-line bg-white shadow-soft
+    dark:border-line-dark dark:bg-surface-dark dark:shadow-none;
+}
+@utility card-hover {
+  @apply transition hover:-translate-y-0.5 hover:shadow-lift;
 }
 @utility link {
-  @apply font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400;
+  @apply font-medium text-indigo-500 hover:text-indigo-600 dark:text-indigo-400;
+}
+@utility icon-btn {
+  @apply grid h-10 w-10 cursor-pointer place-items-center rounded-xl text-slate-500 transition
+    hover:bg-canvas hover:text-ink dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white;
+}
+@utility field {
+  @apply block w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink
+    placeholder:text-muted focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10
+    focus:outline-none dark:border-line-dark dark:bg-canvas-dark dark:text-slate-100;
+}
+@utility muted {
+  @apply text-muted;
 }
 
 @layer components {
@@ -51,24 +87,34 @@ html.dark {
     @apply mb-4;
   }
   .form-stack label {
-    @apply mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300;
+    @apply mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300;
   }
   .form-stack input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
   .form-stack select,
   .form-stack textarea {
-    @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm
-      text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500
-      focus:ring-2 focus:ring-indigo-500/30 focus:outline-none
-      dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100;
+    @apply field;
   }
   .form-stack input[type="checkbox"] {
-    @apply mr-2 h-4 w-4 rounded border-slate-300 text-indigo-600;
+    @apply mr-2 h-4 w-4 rounded border-slate-300 accent-indigo-500;
   }
   .form-stack .helptext,
   .form-stack .help-text {
-    @apply mt-1 block text-xs text-slate-500 dark:text-slate-400;
+    @apply mt-1 block text-xs text-muted;
   }
   .form-stack ul.errorlist {
     @apply mb-2 text-sm text-red-600 dark:text-red-400;
+  }
+
+  /* Overlapping avatar stack, as in "(X)(U) Team + 02". */
+  .avatar-stack > * + * {
+    @apply -ml-2.5;
+  }
+
+  /* <details> dropdowns: hide the default disclosure triangle. */
+  details[data-dropdown] > summary {
+    @apply list-none;
+  }
+  details[data-dropdown] > summary::-webkit-details-marker {
+    display: none;
   }
 }
