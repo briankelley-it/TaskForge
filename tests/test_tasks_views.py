@@ -39,13 +39,14 @@ class TestBoard:
         TaskFactory(project=project, assignee=assignee)
         url = project.get_absolute_url()
 
-        # session, user, membership (+project, owner), tasks (+assignee)
-        with django_assert_num_queries(4):
+        # session, user, membership (+project, owner), record the visit, tasks (+assignee),
+        # then the page shell: sidebar projects and the header's member avatars.
+        with django_assert_num_queries(7):
             logged_in_client.get(url)
 
         for _ in range(29):
             TaskFactory(project=project, assignee=assignee, status=Task.Status.DONE)
-        with django_assert_num_queries(4):
+        with django_assert_num_queries(7):
             response = logged_in_client.get(url)
         assert sum(len(c["tasks"]) for c in response.context["columns"]) == 30
 

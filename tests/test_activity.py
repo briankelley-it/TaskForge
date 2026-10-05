@@ -142,12 +142,13 @@ class TestFeedPage:
     ):
         task = TaskFactory(project=project)
         services.add_comment(task, author=user, body="x")
-        # session, user, membership, count (paginator), activities (+actor, task)
-        with django_assert_num_queries(5):
+        # session, user, membership, count (paginator), activities (+actor, task),
+        # then the page shell: sidebar projects and the header's member avatars.
+        with django_assert_num_queries(7):
             logged_in_client.get(self.url(project))
         for _ in range(10):
             services.add_comment(task, author=user, body="x")
-        with django_assert_num_queries(5):
+        with django_assert_num_queries(7):
             logged_in_client.get(self.url(project))
 
     def test_logged_out_redirects(self, client, project):
