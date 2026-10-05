@@ -1,14 +1,14 @@
-{% if messages %}
-  <div id="messages" class="mx-auto mt-2 w-full max-w-7xl space-y-2 px-4 sm:px-6 lg:px-8">
-    {% for message in messages %}
-      <div data-dismissible
-           class="flex items-start justify-between gap-4 rounded-xl border px-4 py-3 text-sm shadow-soft
-                  {% if message.level_tag == 'error' %}border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200
-                  {% elif message.level_tag == 'warning' %}border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200
-                  {% else %}border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200{% endif %}">
-        <span>{{ message }}</span>
-        <button type="button" data-dismiss aria-label="Dismiss" class="opacity-60 hover:opacity-100">&times;</button>
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
+{% comment %}
+  Django messages as toasts: they slide in at the top right and app.js removes each one
+  after 2 seconds (or when you click ×). Errors use role="alert" so screen readers announce them.
+{% endcomment %}
+<div id="toasts" class="pointer-events-none fixed right-4 top-4 z-[60] flex w-[min(22rem,calc(100vw-2rem))] flex-col gap-2" aria-live="polite">
+  {% for message in messages %}
+    <div data-toast data-dismissible {% if message.level_tag == 'error' %}role="alert"{% else %}role="status"{% endif %}
+         class="pointer-events-auto flex animate-toast-in items-start gap-3 rounded-2xl border bg-white px-4 py-3 text-sm shadow-lift transition duration-300 dark:bg-surface-dark {% if message.level_tag == 'error' %}border-red-200 dark:border-red-500/30{% elif message.level_tag == 'warning' %}border-amber-200 dark:border-amber-500/30{% else %}border-emerald-200 dark:border-emerald-500/30{% endif %}">
+      <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-bold text-white {% if message.level_tag == 'error' %}bg-red-500{% elif message.level_tag == 'warning' %}bg-amber-400{% else %}bg-emerald-500{% endif %}" aria-hidden="true">{% if message.level_tag == 'error' or message.level_tag == 'warning' %}!{% else %}✓{% endif %}</span>
+      <span class="min-w-0 flex-1 text-ink dark:text-slate-100">{{ message }}</span>
+      <button type="button" data-dismiss aria-label="Dismiss" class="-mr-1 -mt-0.5 cursor-pointer px-1 text-lg leading-none text-muted hover:text-ink dark:hover:text-white">&times;</button>
+    </div>
+  {% endfor %}
+</div>

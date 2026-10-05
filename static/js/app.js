@@ -174,3 +174,41 @@ document.addEventListener("input", (event) => {
   });
   meter.querySelector("[data-strength-label]").textContent = label;
 });
+
+// ---- Toasts (Django messages) --------------------------------------------------------
+// Each toast fades and slides out after 2 seconds; × closes it straight away.
+
+const TOAST_MS = 2000;
+
+function scheduleToasts(root) {
+  root.querySelectorAll("[data-toast]:not([data-toast-scheduled])").forEach((toast) => {
+    toast.dataset.toastScheduled = "";
+    setTimeout(() => {
+      toast.classList.add("opacity-0", "translate-x-4");
+      setTimeout(() => toast.remove(), 300);
+    }, TOAST_MS);
+  });
+}
+
+htmx.onLoad(scheduleToasts);
+
+// Demo panel: clicking the email or password fills the login form; on pages without one
+// (sign-up), it copies the value instead.
+document.addEventListener("click", async (event) => {
+  const item = event.target.closest("[data-demo-fill]");
+  if (!item) return;
+  const hint = item.closest("section")?.querySelector("[data-demo-hint]");
+  const target = document.getElementById(item.dataset.demoFill === "login" ? "id_login" : "id_password");
+  if (target) {
+    target.value = item.dataset.value;
+    target.dispatchEvent(new Event("input", { bubbles: true }));
+    if (hint) hint.textContent = "Filled in. Press Log in, or use the demo button.";
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(item.dataset.value);
+    if (hint) hint.textContent = "Copied to the clipboard.";
+  } catch (e) {
+    if (hint) hint.textContent = "Select the text to copy it.";
+  }
+});
