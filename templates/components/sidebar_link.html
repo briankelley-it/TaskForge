@@ -1,0 +1,5 @@
+{# One sidebar icon. `key` is compared with nav_active (set by projects.context_processors). #}
+<a href="{{ url }}" title="{{ label }}" aria-label="{{ label }}" {% if nav_active == key %}aria-current="page"{% endif %}
+   class="relative grid h-11 w-11 place-items-center rounded-xl transition {% if nav_active == key %}bg-indigo-50 text-indigo-500 dark:bg-indigo-500/15 dark:text-indigo-300{% else %}text-slate-400 hover:bg-canvas hover:text-ink dark:hover:bg-white/5 dark:hover:text-white{% endif %}">
+  {% include "components/icon.html" with name=icon %}
+</a>

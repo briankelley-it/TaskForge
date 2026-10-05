@@ -1,0 +1,15 @@
+{# Phones: the sidebar becomes a bottom tab bar. #}
+<nav class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-line-dark dark:bg-surface-dark/95"
+     aria-label="Main navigation">
+  <div class="mx-auto flex max-w-md items-center justify-around px-2 py-2">
+    {% url 'projects:dashboard' as dashboard_url %}
+    {% url 'my_tasks' as my_tasks_url %}
+    {% include "components/sidebar_link.html" with url=dashboard_url icon="grid" label="Dashboard" key="dashboard" %}
+    {% include "components/sidebar_link.html" with url=my_tasks_url icon="clipboard" label="My tasks" key="my_tasks" %}
+    <a href="{% url 'projects:create' %}" class="grid h-12 w-12 -translate-y-3 place-items-center rounded-2xl bg-indigo-500 text-white shadow-lift shadow-indigo-500/30" aria-label="New project">
+      {% include "components/icon.html" with name="plus" %}
+    </a>
+    {% include "components/sidebar_link.html" with url=my_tasks_url|add:"?due=week&everyone=1" icon="clock" label="Due this week" key="due_week" %}
+    {% include "components/sidebar_link.html" with url=dashboard_url|add:"?view=starred#all-projects" icon="star" label="Starred projects" key="starred" %}
+  </div>
+</nav>

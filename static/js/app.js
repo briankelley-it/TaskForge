@@ -34,7 +34,29 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeModal();
+  if (event.key !== "Escape") return;
+  closeModal();
+  closeDropdowns();
+  clearSearchResults();
+});
+
+// ---- Top bar dropdowns (<details data-dropdown>) and search results --------------------
+
+function closeDropdowns(except) {
+  document.querySelectorAll("details[data-dropdown][open]").forEach((menu) => {
+    if (menu !== except) menu.removeAttribute("open");
+  });
+}
+
+function clearSearchResults() {
+  const results = document.getElementById("search-results");
+  if (results) results.innerHTML = "";
+}
+
+document.addEventListener("click", (event) => {
+  // Only one dropdown open at a time; clicking anywhere else closes them.
+  closeDropdowns(event.target.closest("details[data-dropdown]"));
+  if (!event.target.closest("[data-search]")) clearSearchResults();
 });
 
 // The server asks for this with the response header `HX-Trigger: closeModal`.

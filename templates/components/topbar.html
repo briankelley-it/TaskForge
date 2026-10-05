@@ -1,0 +1,70 @@
+{% load taskforge %}
+<header class="sticky top-0 z-20 bg-canvas/85 backdrop-blur-md dark:bg-canvas-dark/85">
+  <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+    <a href="{% url 'projects:dashboard' %}" class="shrink-0 md:hidden" aria-label="TaskForge home">
+      {% include "components/logo.html" with class="h-8 w-8" prefix="top" %}
+    </a>
+
+    {# Live search: results drop down as you type; Enter opens the full results page. #}
+    <form action="{% url 'search' %}" method="get" role="search" class="relative w-full max-w-md" data-search>
+      <label for="global-search" class="sr-only">Search projects and tasks</label>
+      <span class="pointer-events-none absolute inset-y-0 left-3.5 grid place-items-center text-muted">
+        {% include "components/icon.html" with name="search" class="h-[18px] w-[18px]" %}
+      </span>
+      <input id="global-search" type="search" name="q" value="{{ query|default:'' }}" autocomplete="off"
+             placeholder="Search projects and tasks…"
+             hx-get="{% url 'search' %}" hx-trigger="input changed delay:250ms, focus once" hx-target="#search-results" hx-swap="innerHTML"
+             class="field h-11 rounded-xl border-line bg-white pl-10 shadow-soft dark:bg-surface-dark">
+      <div id="search-results" class="absolute inset-x-0 top-full z-40 mt-2 empty:hidden"></div>
+    </form>
+
+    <div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
+      {# Invite: straight to the current project's members, otherwise the team card. #}
+      <a href="{% if project and membership %}{% url 'projects:members' project.pk %}{% else %}{% url 'projects:dashboard' %}#team{% endif %}"
+         class="icon-btn hidden sm:grid" title="Invite teammates" aria-label="Invite teammates">
+        {% include "components/icon.html" with name="user-plus" %}
+      </a>
+
+      {# Notifications: the badge loads after the page, the list loads when opened. #}
+      <details data-dropdown class="relative">
+        <summary class="icon-btn relative" title="Notifications" aria-label="Notifications"
+                 hx-get="{% url 'notifications:panel' %}" hx-trigger="click[!this.parentElement.open]" hx-target="#notification-panel" hx-swap="innerHTML">
+          {% include "components/icon.html" with name="bell" %}
+          <span hx-get="{% url 'notifications:badge' %}" hx-trigger="load, every 60s" hx-target="this" hx-swap="outerHTML"></span>
+        </summary>
+        <div class="absolute right-0 top-full z-40 mt-2 w-[min(22rem,calc(100vw-2rem))]">
+          <div id="notification-panel" class="card overflow-hidden p-4 text-sm text-muted">Loading…</div>
+        </div>
+      </details>
+
+      <a href="{% url 'account_email' %}" class="icon-btn hidden sm:grid" title="Account settings" aria-label="Account settings">
+        {% include "components/icon.html" with name="puzzle" %}
+      </a>
+      <a href="https://github.com/briankelley-it/TaskForge#readme" target="_blank" rel="noopener" class="icon-btn hidden sm:grid" title="Help" aria-label="Help (opens the README)">
+        {% include "components/icon.html" with name="help" %}
+      </a>
+
+      <span class="mx-2 hidden h-6 w-px bg-line sm:block dark:bg-line-dark" aria-hidden="true"></span>
+
+      <details data-dropdown class="relative">
+        <summary class="cursor-pointer rounded-full ring-offset-2 focus-visible:ring-2 focus-visible:ring-indigo-500" aria-label="Account menu">
+          {% avatar user "md" %}
+        </summary>
+        <div class="card absolute right-0 top-full z-40 mt-2 w-60 p-2 text-sm">
+          <div class="px-3 py-2">
+            <p class="truncate font-semibold">{{ user.name }}</p>
+            <p class="truncate text-xs text-muted">{{ user.email }}</p>
+          </div>
+          <hr class="my-1 border-line dark:border-line-dark">
+          <a href="{% url 'account_email' %}" class="block rounded-lg px-3 py-2 hover:bg-canvas dark:hover:bg-white/5">Email addresses</a>
+          <a href="{% url 'account_change_password' %}" class="block rounded-lg px-3 py-2 hover:bg-canvas dark:hover:bg-white/5">Change password</a>
+          <button type="button" data-theme-toggle class="block w-full rounded-lg px-3 py-2 text-left hover:bg-canvas md:hidden dark:hover:bg-white/5">Toggle dark mode</button>
+          <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="block w-full rounded-lg px-3 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10">Log out</button>
+          </form>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>

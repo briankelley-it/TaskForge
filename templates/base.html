@@ -7,7 +7,7 @@
     <meta name="description" content="TaskForge: a fast, simple Kanban board for small teams.">
     <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}">
     <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#6366f1">
     {# Runs before the stylesheet paints, so a dark-mode user never sees a white flash. #}
     <script>
       try {
@@ -17,27 +17,44 @@
         }
       } catch (e) {}
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <script src="{% static 'js/htmx.min.js' %}" defer></script>
     <script src="{% static 'js/app.js' %}" defer></script>
     {% block extra_head %}{% endblock extra_head %}
   </head>
   {# Every HTMX request sends the CSRF token as a header, so POSTs from hx-post just work. #}
-  <body class="flex min-h-full flex-col bg-slate-50 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100"
+  <body class="min-h-full bg-canvas font-sans text-ink antialiased dark:bg-canvas-dark dark:text-slate-100"
         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
-    {% include "components/navbar.html" %}
-    {% include "components/messages.html" %}
+    <a href="#content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:shadow-lift">Skip to content</a>
 
+    {# Signed in: an icon sidebar and a top bar around the page. Signed out: a simple navbar. #}
+    {% if user.is_authenticated %}
+      {% include "components/sidebar.html" %}
+      <div class="flex min-h-screen flex-col md:pl-[84px]">
+        {% include "components/topbar.html" %}
+    {% else %}
+      <div class="flex min-h-screen flex-col">
+        {% include "components/navbar.html" %}
+    {% endif %}
+
+    {% include "components/messages.html" %}
     {% block main %}
-      <main id="content" class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <main id="content" class="mx-auto w-full max-w-7xl flex-1 px-4 pt-4 sm:px-6 lg:px-8 {% if user.is_authenticated %}pb-28 md:pb-12{% else %}pb-8{% endif %}">
         {% block content %}{% endblock content %}
       </main>
     {% endblock main %}
 
-    <footer class="border-t border-slate-200 py-6 text-center text-xs text-slate-500 dark:border-slate-800">
-      TaskForge · built with Django and HTMX
-    </footer>
+    {% if user.is_authenticated %}
+      </div>
+      {% include "components/mobile_nav.html" %}
+    {% else %}
+        <footer class="py-8 text-center text-xs text-muted">TaskForge · built with Django and HTMX</footer>
+      </div>
+    {% endif %}
+
     {# HTMX loads modal forms in here. app.js empties it to close the modal. #}
     <div id="modal"></div>
     {% block extra_body %}{% endblock extra_body %}

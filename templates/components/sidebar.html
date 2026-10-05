@@ -1,0 +1,41 @@
+{% load taskforge %}
+<aside class="fixed inset-y-0 left-0 z-30 hidden w-[84px] flex-col items-center border-r border-line bg-white py-5 md:flex dark:border-line-dark dark:bg-surface-dark"
+       aria-label="Main navigation">
+  <a href="{% url 'projects:dashboard' %}" class="grid h-11 w-11 place-items-center rounded-2xl bg-indigo-50 dark:bg-indigo-500/10" title="TaskForge home">
+    {% include "components/logo.html" with class="h-7 w-7" prefix="side" %}
+  </a>
+
+  <nav class="mt-7 flex flex-1 flex-col items-center gap-1.5 overflow-y-auto">
+    {% url 'projects:dashboard' as dashboard_url %}
+    {% url 'my_tasks' as my_tasks_url %}
+    {% include "components/sidebar_link.html" with url=dashboard_url icon="grid" label="Dashboard" key="dashboard" %}
+    {% include "components/sidebar_link.html" with url=my_tasks_url icon="clipboard" label="My tasks" key="my_tasks" %}
+    {% include "components/sidebar_link.html" with url=my_tasks_url|add:"?due=week&everyone=1" icon="clock" label="Due this week" key="due_week" %}
+    {% include "components/sidebar_link.html" with url=dashboard_url|add:"?view=starred#all-projects" icon="star" label="Starred projects" key="starred" %}
+
+    <span class="my-3 h-px w-8 bg-line dark:bg-line-dark" aria-hidden="true"></span>
+
+    {% for m in sidebar_memberships %}
+      <a href="{{ m.project.get_absolute_url }}" title="{{ m.project.name }}" aria-label="Open {{ m.project.name }}"
+         class="grid h-11 w-11 place-items-center rounded-xl transition hover:bg-canvas dark:hover:bg-white/5 {% if project.pk == m.project_id %}bg-canvas ring-1 ring-indigo-200 dark:bg-white/5 dark:ring-indigo-500/30{% endif %}">
+        {% project_avatar m.project "sm" %}
+      </a>
+    {% endfor %}
+
+    <a href="{% url 'projects:create' %}" title="New project" aria-label="New project"
+       class="mt-1 grid h-11 w-11 place-items-center rounded-xl border border-dashed border-slate-300 text-slate-400 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-slate-600">
+      {% include "components/icon.html" with name="plus" %}
+    </a>
+  </nav>
+
+  <div class="flex flex-col items-center gap-1.5">
+    <button type="button" data-theme-toggle class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <span class="dark:hidden">{% include "components/icon.html" with name="moon" %}</span>
+      <span class="hidden dark:inline">{% include "components/icon.html" with name="sun" %}</span>
+    </button>
+    <form method="post" action="{% url 'account_logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="icon-btn" aria-label="Log out" title="Log out">{% include "components/icon.html" with name="logout" %}</button>
+    </form>
+  </div>
+</aside>
