@@ -59,9 +59,10 @@ class TestAuthPages:
         assert response.status_code == 200
         assert b"Sign up" in response.content
 
-    def test_home_page_greets_logged_in_user(self, logged_in_client, user):
+    def test_home_page_redirects_logged_in_user_to_dashboard(self, logged_in_client):
         response = logged_in_client.get(reverse("home"))
-        assert user.name in response.content.decode()
+        assert response.status_code == 302
+        assert response.url == reverse("projects:dashboard")
 
     @pytest.mark.parametrize(
         "url_name", ["account_login", "account_signup", "account_reset_password"]
@@ -93,7 +94,7 @@ class TestAuthPages:
             reverse("account_login"), {"login": "ada@example.com", "password": DEFAULT_PASSWORD}
         )
         assert response.status_code == 302
-        assert response.url == reverse("home")
+        assert response.url == reverse("projects:dashboard")
 
     def test_login_with_wrong_password_fails(self, client):
         UserFactory(email="ada@example.com")

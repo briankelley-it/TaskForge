@@ -1,6 +1,6 @@
 import pytest
 
-from tests.factories import UserFactory
+from tests.factories import MembershipFactory, ProjectFactory, UserFactory
 
 
 @pytest.fixture
@@ -12,3 +12,21 @@ def user(db):
 def logged_in_client(client, user):
     client.force_login(user)
     return client
+
+
+@pytest.fixture
+def project(user):
+    """A project owned by `user`."""
+    return ProjectFactory(owner=user)
+
+
+@pytest.fixture
+def member(project):
+    """A non-owner member of `project`."""
+    return MembershipFactory(project=project).user
+
+
+@pytest.fixture
+def outsider(db):
+    """A logged-in user with no access to `project`."""
+    return UserFactory()
