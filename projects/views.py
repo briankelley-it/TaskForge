@@ -8,12 +8,14 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+
+from tasks.models import Task
 
 from . import services
 from .forms import InviteForm, ProjectForm
@@ -35,10 +37,20 @@ class DashboardView(LoginRequiredMixin, ListView):
     context_object_name = "projects"
 
     def get_queryset(self):
+        # Two multi-valued joins (memberships and tasks) multiply rows, so every count
+        # is distinct. One query for the whole dashboard, however many projects.
+        tasks = Task.Status
         return (
             Project.objects.for_user(self.request.user)
             .select_related("owner")
-            .annotate(member_count=Count("memberships"))
+            .annotate(
+                member_count=Count("memberships", distinct=True),
+                todo_count=Count("tasks", filter=Q(tasks__status=tasks.TODO), distinct=True),
+                in_progress_count=Count(
+                    "tasks", filter=Q(tasks__status=tasks.IN_PROGRESS), distinct=True
+                ),
+                done_count=Count("tasks", filter=Q(tasks__status=tasks.DONE), distinct=True),
+            )
         )
 
 
@@ -52,8 +64,8 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return redirect(self.object)
 
 
-class ProjectDetailView(ProjectMemberMixin, DetailView):
-    template_name = "projects/project_detail.html"
+class ProjectMembersView(ProjectMemberMixin, DetailView):
+    template_name = "projects/project_members.html"
 
     def get_object(self, queryset=None):
         return self.project
@@ -109,7 +121,7 @@ def render_members(request: HttpRequest, project: Project, membership: Membershi
         return render(request, "projects/partials/members.html", context)
     if notice := extra.get("notice"):
         messages.add_message(request, extra.get("notice_level", messages.INFO), notice)
-    return redirect(project)
+    return redirect("projects:members", pk=project.pk)
 
 
 @login_required

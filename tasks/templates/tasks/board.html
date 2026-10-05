@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head_title %}{{ project.name }}{% endblock head_title %}
+{% block extra_head %}<script src="{% static 'js/Sortable.min.js' %}" defer></script>{% endblock extra_head %}
+{% block content %}
+  {% include "projects/partials/project_header.html" %}
+  <div class="mb-4 flex items-center justify-between gap-3">
+    <p class="text-sm text-slate-500 dark:text-slate-400">Drag cards between columns. Click a card to edit it.</p>
+    <a href="{% url 'tasks:create' project.pk %}"
+       hx-get="{% url 'tasks:create' project.pk %}" hx-target="#modal"
+       class="btn-primary shrink-0">+ New task</a>
+  </div>
+  {% include "tasks/partials/board.html" %}
+{% endblock content %}

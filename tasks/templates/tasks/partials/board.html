@@ -1,0 +1,25 @@
+{# The three columns. Reloads itself whenever the server sends an HX-Trigger: boardChanged. #}
+<div id="board"
+     hx-get="{% url 'tasks:board' project.pk %}"
+     hx-trigger="boardChanged from:body"
+     hx-swap="outerHTML"
+     class="grid gap-4 md:grid-cols-3">
+  {% for column in columns %}
+    <section class="flex flex-col rounded-xl bg-slate-100 p-3 dark:bg-slate-800/60" aria-labelledby="col-{{ column.status }}">
+      <header class="mb-3 flex items-center justify-between px-1">
+        <h2 id="col-{{ column.status }}" class="flex items-center gap-2 text-sm font-semibold">
+          <span class="h-2 w-2 rounded-full {% if column.status == 'todo' %}bg-slate-400{% elif column.status == 'in_progress' %}bg-indigo-500{% else %}bg-emerald-500{% endif %}"></span>
+          {{ column.label }}
+          <span class="rounded-full bg-white px-2 text-xs font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-300">{{ column.tasks|length }}</span>
+        </h2>
+        <a href="{% url 'tasks:create' project.pk %}?status={{ column.status }}"
+           hx-get="{% url 'tasks:create' project.pk %}?status={{ column.status }}" hx-target="#modal"
+           class="rounded p-1 text-slate-400 hover:bg-white hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+           aria-label="Add a task to {{ column.label }}">+</a>
+      </header>
+      {# No whitespace inside the list when it's empty, so the :empty placeholder shows. #}
+      <ul data-sortable data-status="{{ column.status }}"
+          class="min-h-24 flex-1 space-y-2 rounded-lg empty:border-2 empty:border-dashed empty:border-slate-300 empty:before:block empty:before:p-6 empty:before:text-center empty:before:text-xs empty:before:text-slate-400 empty:before:content-['Drop_tasks_here'] dark:empty:border-slate-600">{% for task in column.tasks %}{% include "tasks/partials/task_card.html" %}{% endfor %}</ul>
+    </section>
+  {% endfor %}
+</div>

@@ -1,0 +1,24 @@
+{# Shared header for project pages. Expects `project`, `membership` and `active_tab`. #}
+<nav class="mb-2 text-sm"><a href="{% url 'projects:dashboard' %}" class="link">← All projects</a></nav>
+<div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+  <div class="min-w-0">
+    <h1 class="truncate text-2xl font-bold tracking-tight">{{ project.name }}</h1>
+    {% if project.description %}
+      <p class="mt-1 max-w-2xl whitespace-pre-line text-sm text-slate-600 dark:text-slate-400">{{ project.description }}</p>
+    {% endif %}
+  </div>
+  {% if membership.is_owner %}
+    <div class="flex gap-2">
+      <a href="{% url 'projects:update' project.pk %}" class="btn-secondary">Edit</a>
+      <a href="{% url 'projects:delete' project.pk %}" class="btn-secondary text-red-600 dark:text-red-400">Delete</a>
+    </div>
+  {% endif %}
+</div>
+<div class="mb-6 flex gap-1 border-b border-slate-200 text-sm dark:border-slate-700">
+  {% url 'tasks:board' project.pk as board_url %}
+  {% url 'projects:members' project.pk as members_url %}
+  <a href="{{ board_url }}"
+     class="-mb-px border-b-2 px-3 py-2 {% if active_tab == 'board' %}border-indigo-600 font-semibold text-indigo-600 dark:text-indigo-400{% else %}border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200{% endif %}">Board</a>
+  <a href="{{ members_url }}"
+     class="-mb-px border-b-2 px-3 py-2 {% if active_tab == 'members' %}border-indigo-600 font-semibold text-indigo-600 dark:text-indigo-400{% else %}border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200{% endif %}">Members</a>
+</div>

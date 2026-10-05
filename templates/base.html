@@ -26,6 +26,8 @@
     <footer class="border-t border-slate-200 py-6 text-center text-xs text-slate-500 dark:border-slate-800">
       TaskForge · built with Django and HTMX
     </footer>
+    {# HTMX loads modal forms in here. app.js empties it to close the modal. #}
+    <div id="modal"></div>
     {% block extra_body %}{% endblock extra_body %}
   </body>
 </html>

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block head_title %}{% if task %}Edit task{% else %}New task{% endif %}{% endblock head_title %}
+{% block content %}
+  <div class="mx-auto max-w-lg">
+    {% include "tasks/partials/task_form.html" with page=True %}
+  </div>
+{% endblock content %}

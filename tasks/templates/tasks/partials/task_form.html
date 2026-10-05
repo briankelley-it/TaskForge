@@ -1,0 +1,34 @@
+{% comment %}
+  Create/edit task form. Loaded into #modal by HTMX; also included by task_form.html as
+  a normal page (page=True) when JavaScript is off.
+{% endcomment %}
+{% if task %}{% url 'tasks:update' project.pk task.pk as action %}{% else %}{% url 'tasks:create' project.pk as action %}{% endif %}
+{% if not page %}<div data-modal-backdrop class="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-900/50 p-4 sm:items-center">{% endif %}
+  <div class="card form-stack w-full max-w-lg p-6" {% if not page %}role="dialog" aria-modal="true" aria-labelledby="modal-title"{% endif %}>
+    <div class="mb-4 flex items-start justify-between gap-4">
+      <h2 id="modal-title" class="text-lg font-semibold">{% if task %}Edit task{% else %}New task{% endif %}</h2>
+      {% if not page %}<button type="button" data-close-modal aria-label="Close" class="text-xl leading-none text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">&times;</button>{% endif %}
+    </div>
+    <form method="post" action="{{ action }}" hx-post="{{ action }}" hx-target="#modal">
+      {% csrf_token %}
+      {% include "components/form_fields.html" %}
+      <div class="flex flex-wrap gap-3">
+        <button type="submit" class="btn-primary">{% if task %}Save changes{% else %}Create task{% endif %}</button>
+        {% if page %}
+          <a href="{{ project.get_absolute_url }}" class="btn-secondary">Cancel</a>
+        {% else %}
+          <button type="button" data-close-modal class="btn-secondary">Cancel</button>
+        {% endif %}
+      </div>
+    </form>
+    {% if task %}
+      <form method="post" action="{% url 'tasks:delete' project.pk task.pk %}"
+            hx-post="{% url 'tasks:delete' project.pk task.pk %}"
+            hx-confirm="Delete “{{ task.title }}”? This can't be undone."
+            class="mt-4 border-t border-slate-100 pt-4 dark:border-slate-700">
+        {% csrf_token %}
+        <button type="submit" class="text-sm text-red-600 hover:underline dark:text-red-400">Delete task</button>
+      </form>
+    {% endif %}
+  </div>
+{% if not page %}</div>{% endif %}
