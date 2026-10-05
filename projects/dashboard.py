@@ -63,16 +63,10 @@ def annotate_projects(queryset):
 
 
 def decorate(projects: list, memberships: dict) -> None:
-    """Attach the user's membership and the thumbnail's bar counts to each project."""
+    """Attach the user's membership and a total task count to each project."""
     for project in projects:
         project.my_membership = memberships.get(project.pk)
         project.is_starred = bool(project.my_membership and project.my_membership.is_starred)
-        # The thumbnail draws up to five bars per column, sized from the real counts.
-        project.bars = [
-            ("todo", range(min(project.todo_count, 5))),
-            ("in_progress", range(min(project.in_progress_count, 5))),
-            ("done", range(min(project.done_count, 5))),
-        ]
         project.task_total = project.todo_count + project.in_progress_count + project.done_count
 
 

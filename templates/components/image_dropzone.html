@@ -1,0 +1,24 @@
+{% comment %}
+  Image picker. Clicking anywhere on it opens the operating system's file picker (it's a
+  <label> for a real <input type="file">); you can also drag an image onto it. app.js shows
+  a preview straight away. Expects `field` (a bound FileField) and `current_url`.
+{% endcomment %}
+<div data-dropzone>
+  <label for="{{ field.id_for_label }}"
+         class="group relative block cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-line bg-canvas transition hover:border-indigo-400 data-[dragging]:border-indigo-500 data-[dragging]:ring-4 data-[dragging]:ring-indigo-500/15 dark:border-line-dark dark:bg-canvas-dark">
+    <img data-dropzone-preview src="{{ current_url }}" alt="Cover preview" class="aspect-[3/2] w-full object-cover">
+    <span class="absolute inset-0 grid place-items-center bg-ink/0 transition group-hover:bg-ink/25 group-data-[dragging]:bg-indigo-500/25">
+      {# Hidden once a file is picked (data-has-file), but shown again on hover to swap it. #}
+      <span class="flex items-center gap-2 rounded-xl bg-white/95 px-4 py-2 text-sm font-medium text-ink shadow-soft transition group-hover:opacity-100 group-data-[has-file]:opacity-0 dark:bg-surface-dark/95 dark:text-white">
+        {% include "components/icon.html" with name="download" class="h-4 w-4 rotate-180" %}
+        Choose an image or drop it here
+      </span>
+    </span>
+  </label>
+  {{ field }}
+  <p class="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
+    <span>{{ field.help_text }}</span>
+    <span data-dropzone-name class="truncate font-medium text-ink dark:text-white"></span>
+  </p>
+  {% if field.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ field.errors|join:" " }}</p>{% endif %}
+</div>

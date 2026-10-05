@@ -12,6 +12,7 @@ from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DeleteView, DetailView, TemplateView, UpdateView
 
@@ -19,7 +20,7 @@ from tasks.models import Task
 
 from . import services
 from .dashboard import VIEWS, build_dashboard
-from .forms import InviteForm, ProjectForm
+from .forms import CoverForm, InviteForm, ProjectForm
 from .htmx import is_htmx
 from .models import Membership, Project
 from .permissions import ProjectMemberMixin, ProjectOwnerMixin, get_membership
@@ -114,8 +115,50 @@ class ProjectUpdateView(ProjectOwnerMixin, UpdateView):
         return self.project
 
     def form_valid(self, form):
+        # The bound form has already put any new cover on the instance, so read the old
+        # filename from the database, and delete that file once the new one is saved.
+        old_cover = Project.objects.values_list("cover", flat=True).get(pk=self.project.pk)
+        response = super().form_valid(form)
+        if old_cover and old_cover != self.object.cover.name:
+            self.object.cover.storage.delete(old_cover)
         messages.success(self.request, "Project updated.")
-        return super().form_valid(form)
+        return response
+
+
+@login_required
+def project_cover(request: HttpRequest, pk: int) -> HttpResponse:
+    """The "Change cover" modal: pick a file with the system file picker (or drop one),
+    preview it, upload. Owners only, like the rest of the project's settings."""
+    project = get_membership(request.user, pk, owner_only=True).project
+    if request.method == "POST":
+        if request.POST.get("remove"):
+            services.remove_cover(project)
+            return cover_saved(request, "Cover removed.")
+        form = CoverForm(request.POST, request.FILES, instance=project)
+        if form.is_valid():
+            services.set_cover(project, form.cleaned_data["cover"])
+            return cover_saved(request, "Cover updated.")
+    else:
+        form = CoverForm(instance=project)
+    template = (
+        "projects/partials/cover_form.html" if is_htmx(request) else "projects/cover_page.html"
+    )
+    next_url = request.POST.get("next") or request.GET.get("next", "")
+    return render(request, template, {"project": project, "form": form, "next_url": next_url})
+
+
+def cover_saved(request: HttpRequest, message: str) -> HttpResponse:
+    messages.success(request, message)
+    if is_htmx(request):
+        # Covers appear in several places (cards, header), so reload the page.
+        response = HttpResponse(status=204)
+        response["HX-Refresh"] = "true"
+        return response
+    # Only follow "next" if it points back at this site (no open redirects).
+    next_url = request.POST.get("next", "")
+    if url_has_allowed_host_and_scheme(next_url, {request.get_host()}, request.is_secure()):
+        return redirect(next_url)
+    return redirect("projects:dashboard")
 
 
 class ProjectDeleteView(ProjectOwnerMixin, DeleteView):

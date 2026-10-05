@@ -91,3 +91,44 @@ function initBoard(root) {
 // Runs on first page load and again for every piece of HTML that HTMX swaps in,
 // so the board is re-initialised each time it reloads.
 htmx.onLoad(initBoard);
+
+// ---- Image drop zones (cover images) ---------------------------------------------------
+// The zone is a <label> for a real file input, so clicking it opens the system file picker.
+// This adds an instant preview and lets you drop an image onto it.
+
+function showPreview(input) {
+  const zone = input.closest("[data-dropzone]");
+  const file = input.files && input.files[0];
+  if (!zone || !file) return;
+  zone.querySelector("[data-dropzone-preview]").src = URL.createObjectURL(file);
+  zone.querySelector("[data-dropzone-name]").textContent = file.name;
+  zone.querySelector("label").dataset.hasFile = "";
+}
+
+document.addEventListener("change", (event) => {
+  if (event.target.matches("[data-cover-input]")) showPreview(event.target);
+});
+
+["dragenter", "dragover"].forEach((type) =>
+  document.addEventListener(type, (event) => {
+    const label = event.target.closest("[data-dropzone] label");
+    if (!label) return;
+    event.preventDefault(); // allow dropping
+    label.dataset.dragging = "";
+  }),
+);
+
+["dragleave", "drop"].forEach((type) =>
+  document.addEventListener(type, (event) => {
+    const label = event.target.closest("[data-dropzone] label");
+    if (!label) return;
+    delete label.dataset.dragging;
+    if (type !== "drop") return;
+    event.preventDefault();
+    const input = label.closest("[data-dropzone]").querySelector("[data-cover-input]");
+    if (event.dataTransfer.files.length) {
+      input.files = event.dataTransfer.files;
+      showPreview(input);
+    }
+  }),
+);

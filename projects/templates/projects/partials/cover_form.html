@@ -1,0 +1,33 @@
+{% comment %}
+  "Change cover" modal. Loaded into #modal by HTMX; also included by cover_page.html with
+  page=True for the no-JavaScript version. hx-encoding makes HTMX send the file.
+{% endcomment %}
+{% url 'projects:cover' project.pk as action %}
+{% if not page %}<div data-modal-backdrop class="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-ink/40 p-4 backdrop-blur-[2px] sm:items-center">{% endif %}
+  <div class="card w-full max-w-lg p-6" {% if not page %}role="dialog" aria-modal="true" aria-labelledby="modal-title"{% endif %}>
+    <div class="mb-4 flex items-start justify-between gap-4">
+      <div>
+        <h2 id="modal-title" class="text-lg font-semibold">Cover image</h2>
+        <p class="text-sm text-muted">{{ project.name }}</p>
+      </div>
+      {% if not page %}<button type="button" data-close-modal aria-label="Close" class="icon-btn -mr-2 -mt-2">{% include "components/icon.html" with name="x" %}</button>{% endif %}
+    </div>
+    <form method="post" action="{{ action }}" enctype="multipart/form-data"
+          hx-post="{{ action }}" hx-encoding="multipart/form-data" hx-target="#modal" hx-swap="innerHTML">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url }}">
+      {% with field=form.cover %}{% include "components/image_dropzone.html" with current_url=project.cover_url %}{% endwith %}
+      <div class="mt-5 flex flex-wrap items-center gap-3">
+        <button type="submit" class="btn-primary">Save cover</button>
+        {% if page %}
+          <a href="{{ project.get_absolute_url }}" class="btn-secondary">Cancel</a>
+        {% else %}
+          <button type="button" data-close-modal class="btn-secondary">Cancel</button>
+        {% endif %}
+        {% if project.cover %}
+          <button type="submit" name="remove" value="1" formnovalidate class="ml-auto text-sm font-medium text-red-500 hover:underline">Use placeholder</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+{% if not page %}</div>{% endif %}

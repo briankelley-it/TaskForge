@@ -3,9 +3,23 @@
 {% block content %}
   <div class="mx-auto max-w-xl">
     <h1 class="mb-6 text-2xl font-bold tracking-tight">{% if object %}Edit project{% else %}New project{% endif %}</h1>
-    <form method="post" class="card form-stack p-6">
+    {# multipart/form-data so the cover image file is sent with the form. #}
+    <form method="post" enctype="multipart/form-data" class="card form-stack p-6">
       {% csrf_token %}
-      {% include "components/form_fields.html" %}
+      {% for field in form.visible_fields %}
+        {% if field.name == "cover" %}
+          <div class="mb-5">
+            <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">{{ field.label }}</span>
+            {% include "components/image_dropzone.html" with current_url=object.cover_url|default:"https://placehold.co/600x400" %}
+          </div>
+        {% else %}
+          <div class="mb-4">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ field.errors|join:" " }}</p>{% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
       <div class="flex gap-3">
         <button type="submit" class="btn-primary">{% if object %}Save changes{% else %}Create project{% endif %}</button>
         <a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'projects:dashboard' %}{% endif %}" class="btn-secondary">Cancel</a>

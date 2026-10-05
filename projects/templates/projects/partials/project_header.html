@@ -27,6 +27,9 @@
       </a>
       {% if membership.is_owner %}
         <a href="{% url 'projects:members' project.pk %}" class="btn-secondary">{% include "components/icon.html" with name="user-plus" class="h-4 w-4" %}<span class="hidden sm:inline">Invite</span></a>
+        <a href="{% url 'projects:cover' project.pk %}?next={{ request.get_full_path|urlencode }}"
+           hx-get="{% url 'projects:cover' project.pk %}?next={{ request.get_full_path|urlencode }}" hx-target="#modal" hx-swap="innerHTML"
+           class="btn-secondary">Cover</a>
         <a href="{% url 'projects:update' project.pk %}" class="btn-secondary px-3" title="Edit project" aria-label="Edit project">{% include "components/icon.html" with name="pencil" class="h-4 w-4" %}</a>
         <a href="{% url 'projects:delete' project.pk %}" class="btn-secondary px-3 text-red-500 hover:text-red-600 dark:text-red-400" title="Delete project" aria-label="Delete project">{% include "components/icon.html" with name="trash" class="h-4 w-4" %}</a>
       {% endif %}
