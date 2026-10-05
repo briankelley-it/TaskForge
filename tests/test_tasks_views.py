@@ -223,3 +223,16 @@ def test_task_admin_pages_render(admin_client, project):
     task = TaskFactory(project=project)
     assert admin_client.get(reverse("admin:tasks_task_changelist")).status_code == 200
     assert admin_client.get(reverse("admin:tasks_task_change", args=[task.pk])).status_code == 200
+
+
+def test_everything_that_opens_the_modal_fills_it_instead_of_replacing_it(
+    logged_in_client, project
+):
+    """Regression: #board's hx-swap="outerHTML" used to be inherited by the cards, so
+    opening a task replaced #modal itself and the × button had nothing to close."""
+    TaskFactory(project=project)
+    html = logged_in_client.get(project.get_absolute_url()).content.decode()
+    assert 'hx-disinherit="*"' in html
+    opener_count = html.count('hx-target="#modal"')
+    assert opener_count >= 3  # "New task", a column "+", a card
+    assert html.count('hx-target="#modal" hx-swap="innerHTML"') == opener_count
