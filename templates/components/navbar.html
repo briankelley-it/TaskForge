@@ -6,6 +6,7 @@
     </a>
     <div class="flex items-center gap-3 text-sm">
       {% if user.is_authenticated %}
+        <a href="{% url 'projects:dashboard' %}" class="link">Projects</a>
         <span class="hidden text-slate-500 sm:inline dark:text-slate-400">{{ user.name }}</span>
         <form method="post" action="{% url 'account_logout' %}">
           {% csrf_token %}

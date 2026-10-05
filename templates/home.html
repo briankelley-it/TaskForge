@@ -8,12 +8,8 @@
       and drag tasks from To Do to Done.
     </p>
     <div class="mt-8 flex justify-center gap-3">
-      {% if user.is_authenticated %}
-        <p class="text-slate-600 dark:text-slate-400">Welcome back, {{ user.name }}.</p>
-      {% else %}
-        <a href="{% url 'account_signup' %}" class="btn-primary">Get started</a>
-        <a href="{% url 'account_login' %}" class="btn-secondary">Log in</a>
-      {% endif %}
+      <a href="{% url 'account_signup' %}" class="btn-primary">Get started</a>
+      <a href="{% url 'account_login' %}" class="btn-secondary">Log in</a>
     </div>
   </section>
 {% endblock content %}

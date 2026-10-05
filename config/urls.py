@@ -1,9 +1,11 @@
 from django.contrib import admin
 from django.urls import include, path
-from django.views.generic import TemplateView
+
+from projects.views import home
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="home.html"), name="home"),
+    path("", home, name="home"),
+    path("projects/", include("projects.urls")),
     path("accounts/", include("allauth.urls")),
     path("admin/", admin.site.urls),
 ]

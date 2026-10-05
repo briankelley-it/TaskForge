@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block head_title %}Dashboard{% endblock head_title %}
+{% block content %}
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Your projects</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Projects you own or have been invited to.</p>
+    </div>
+    <a href="{% url 'projects:create' %}" class="btn-primary">+ New project</a>
+  </div>
+
+  {% if projects %}
+    <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {% for project in projects %}
+        <li>
+          <a href="{{ project.get_absolute_url }}"
+             class="card block h-full p-5 transition hover:border-indigo-300 hover:shadow-md dark:hover:border-indigo-700">
+            <h2 class="font-semibold">{{ project.name }}</h2>
+            {% if project.description %}
+              <p class="mt-1 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{{ project.description }}</p>
+            {% endif %}
+            <p class="mt-4 text-xs text-slate-500 dark:text-slate-400">
+              {{ project.member_count }} member{{ project.member_count|pluralize }}
+              · owned by {% if project.owner_id == user.id %}you{% else %}{{ project.owner.name }}{% endif %}
+            </p>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="card p-10 text-center">
+      <h2 class="font-semibold">No projects yet</h2>
+      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Create your first project, or ask a teammate to invite you.</p>
+      <a href="{% url 'projects:create' %}" class="btn-primary mt-4">Create a project</a>
+    </div>
+  {% endif %}
+{% endblock content %}

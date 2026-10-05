@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block head_title %}Delete {{ project.name }}{% endblock head_title %}
+{% block content %}
+  <div class="card mx-auto max-w-lg p-6">
+    <h1 class="text-xl font-bold">Delete “{{ project.name }}”?</h1>
+    <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+      This permanently deletes the project and everything in it for every member. It can't be undone.
+    </p>
+    <form method="post" class="mt-6 flex gap-3">
+      {% csrf_token %}
+      <button type="submit" class="btn-danger">Delete project</button>
+      <a href="{{ project.get_absolute_url }}" class="btn-secondary">Cancel</a>
+    </form>
+  </div>
+{% endblock content %}

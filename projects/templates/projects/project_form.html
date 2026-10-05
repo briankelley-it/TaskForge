@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block head_title %}{% if object %}Edit {{ object.name }}{% else %}New project{% endif %}{% endblock head_title %}
+{% block content %}
+  <div class="mx-auto max-w-xl">
+    <h1 class="mb-6 text-2xl font-bold tracking-tight">{% if object %}Edit project{% else %}New project{% endif %}</h1>
+    <form method="post" class="card form-stack p-6">
+      {% csrf_token %}
+      {% include "components/form_fields.html" %}
+      <div class="flex gap-3">
+        <button type="submit" class="btn-primary">{% if object %}Save changes{% else %}Create project{% endif %}</button>
+        <a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'projects:dashboard' %}{% endif %}" class="btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock content %}

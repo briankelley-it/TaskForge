@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block head_title %}{{ project.name }}{% endblock head_title %}
+{% block content %}
+  <nav class="mb-2 text-sm"><a href="{% url 'projects:dashboard' %}" class="link">← All projects</a></nav>
+  <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">{{ project.name }}</h1>
+      {% if project.description %}
+        <p class="mt-1 max-w-2xl whitespace-pre-line text-slate-600 dark:text-slate-400">{{ project.description }}</p>
+      {% endif %}
+    </div>
+    {% if membership.is_owner %}
+      <div class="flex gap-2">
+        <a href="{% url 'projects:update' project.pk %}" class="btn-secondary">Edit</a>
+        <a href="{% url 'projects:delete' project.pk %}" class="btn-secondary text-red-600 dark:text-red-400">Delete</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-3">
+    <section class="card p-6 lg:col-span-2">
+      <h2 class="font-semibold">Board</h2>
+      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">The Kanban board arrives in the next phase.</p>
+    </section>
+    {% include "projects/partials/members.html" %}
+  </div>
+{% endblock content %}

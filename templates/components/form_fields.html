@@ -1,0 +1,15 @@
+{# Renders every field of `form` with label, errors and help text. Wrap in .form-stack for styling. #}
+{% if form.non_field_errors %}
+  <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+    {{ form.non_field_errors }}
+  </div>
+{% endif %}
+{% for field in form.hidden_fields %}{{ field }}{% endfor %}
+{% for field in form.visible_fields %}
+  <div class="mb-4">
+    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {{ field }}
+    {% if field.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ field.errors|join:" " }}</p>{% endif %}
+    {% if field.help_text %}<span class="help-text">{{ field.help_text }}</span>{% endif %}
+  </div>
+{% endfor %}

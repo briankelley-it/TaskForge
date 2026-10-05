@@ -1,0 +1,52 @@
+{# Members panel. Rendered inside the project page and returned alone by the HTMX member endpoints. #}
+<section id="members" class="card p-6">
+  <h2 class="font-semibold">Members <span class="text-sm font-normal text-slate-500">({{ memberships|length }})</span></h2>
+
+  {% if notice %}
+    <div role="status" data-dismissible
+         class="mt-3 flex items-start justify-between gap-3 rounded-lg border px-3 py-2 text-sm
+                {% if notice_level == 40 %}border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200
+                {% elif notice_level == 30 %}border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200
+                {% else %}border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200{% endif %}">
+      <span>{{ notice }}</span>
+      <button type="button" data-dismiss aria-label="Dismiss" class="opacity-60 hover:opacity-100">&times;</button>
+    </div>
+  {% endif %}
+
+  <ul class="mt-4 divide-y divide-slate-100 dark:divide-slate-700">
+    {% for m in memberships %}
+      <li class="flex items-center justify-between gap-3 py-2">
+        <div class="min-w-0">
+          <p class="truncate text-sm font-medium">{{ m.user.name }}{% if m.user == user %} <span class="text-slate-400">(you)</span>{% endif %}</p>
+          <p class="truncate text-xs text-slate-500 dark:text-slate-400">{{ m.user.email }}</p>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <span class="rounded-full px-2 py-0.5 text-xs {% if m.is_owner %}bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300{% endif %}">
+            {{ m.get_role_display }}
+          </span>
+          {% if membership.is_owner and not m.is_owner %}
+            <form method="post" action="{% url 'projects:remove_member' project.pk m.user_id %}"
+                  hx-post="{% url 'projects:remove_member' project.pk m.user_id %}"
+                  hx-target="#members" hx-swap="outerHTML"
+                  hx-confirm="Remove {{ m.user.name }} from {{ project.name }}?">
+              {% csrf_token %}
+              <button type="submit" class="text-xs text-red-600 hover:underline dark:text-red-400">Remove</button>
+            </form>
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if membership.is_owner %}
+    {# Works without JavaScript too: the plain POST falls back to a redirect. #}
+    <form method="post" action="{% url 'projects:invite_member' project.pk %}"
+          hx-post="{% url 'projects:invite_member' project.pk %}"
+          hx-target="#members" hx-swap="outerHTML"
+          class="form-stack mt-4 border-t border-slate-100 pt-4 dark:border-slate-700">
+      {% csrf_token %}
+      {% with form=invite_form %}{% include "components/form_fields.html" %}{% endwith %}
+      <button type="submit" class="btn-primary w-full">Invite</button>
+    </form>
+  {% endif %}
+</section>
