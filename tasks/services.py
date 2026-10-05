@@ -1,4 +1,5 @@
-"""Business logic for tasks: creating them and moving them around the board.
+"""Business logic for tasks: creating, editing, moving and commenting, plus the activity
+each of those records.
 
 Positions are kept contiguous (0, 1, 2, ...) within each column. Renumbering the
 whole column on every move is simple and correct, and a column on a small team's
@@ -9,9 +10,13 @@ from django.db import transaction
 from django.db.models import Max
 from django.utils import timezone
 
+from activity import services as activity
+from activity.models import Activity
 from projects.models import Project
 
-from .models import Task
+from .models import Comment, Task
+
+Verb = Activity.Verb
 
 
 def _next_position(project: Project, status: str) -> int:
@@ -20,31 +25,61 @@ def _next_position(project: Project, status: str) -> int:
     return 0 if top is None else top + 1
 
 
+def _moved_detail(old_status: str, new_status: str) -> str:
+    return f"from {Task.Status(old_status).label} to {Task.Status(new_status).label}"
+
+
+@transaction.atomic
 def create_task(*, project: Project, created_by, **fields) -> Task:
     """Create a task at the bottom of its column."""
     status = fields.pop("status", Task.Status.TODO)
-    return Task.objects.create(
+    task = Task.objects.create(
         project=project,
         created_by=created_by,
         status=status,
         position=_next_position(project, status),
         **fields,
     )
+    activity.log(project=project, actor=created_by, verb=Verb.CREATED, task=task)
+    if task.assignee:
+        _log_assigned(task, created_by)
+    return task
 
 
-def update_task(task: Task, **fields) -> Task:
+def _log_assigned(task: Task, actor) -> None:
+    detail = f"to {task.assignee.name}" if task.assignee else "to nobody"
+    activity.log(project=task.project, actor=actor, verb=Verb.ASSIGNED, task=task, detail=detail)
+
+
+@transaction.atomic
+def update_task(task: Task, *, actor, **fields) -> Task:
     """Save edits from the task form. Changing the status moves the task to the bottom
     of its new column, like dragging it there."""
-    # Read the stored status: a bound ModelForm has already copied the new one onto `task`.
-    old_status = Task.objects.values_list("status", flat=True).get(pk=task.pk)
+    # Read the stored values: a bound ModelForm has already copied the new ones onto `task`.
+    old_status, old_assignee_id = Task.objects.values_list("status", "assignee_id").get(pk=task.pk)
     for name, value in fields.items():
         setattr(task, name, value)
-    with transaction.atomic():
-        if task.status != old_status:
-            task.position = _next_position(task.project, task.status)
-        task.save()
-        if task.status != old_status:
-            _renumber(task.project, old_status)
+
+    moved = task.status != old_status
+    if moved:
+        task.position = _next_position(task.project, task.status)
+    task.save()
+    if moved:
+        _renumber(task.project, old_status)
+
+    # One feed line per meaningful change; plain edits get a single "updated" line.
+    if moved:
+        activity.log(
+            project=task.project,
+            actor=actor,
+            verb=Verb.MOVED,
+            task=task,
+            detail=_moved_detail(old_status, task.status),
+        )
+    if task.assignee_id != old_assignee_id:
+        _log_assigned(task, actor)
+    if not moved and task.assignee_id == old_assignee_id:
+        activity.log(project=task.project, actor=actor, verb=Verb.UPDATED, task=task)
     return task
 
 
@@ -60,12 +95,12 @@ def _renumber(project: Project, status: str) -> None:
 
 
 @transaction.atomic
-def move_task(task: Task, *, status: str, position: int) -> bool:
+def move_task(task: Task, *, status: str, position: int, actor) -> bool:
     """Move a task to `position` (0 = top) in the `status` column.
 
-    Returns True if the task changed column, which the activity feed uses.
-    Rows are locked so two people dragging at once can't end up with duplicate
-    positions.
+    Returns True if the task changed column. Only column changes go in the activity
+    feed; reordering within a column would just be noise.
+    Rows are locked so two people dragging at once can't end up with duplicate positions.
     """
     if status not in Task.Status.values:
         raise ValueError(f"Unknown status: {status!r}")
@@ -89,13 +124,30 @@ def move_task(task: Task, *, status: str, position: int) -> bool:
     # bulk_update skips auto_now, so updated_at is set by hand above.
     Task.objects.bulk_update(column, ["status", "position", "updated_at"])
 
-    if old_status != status:
+    changed_column = old_status != status
+    if changed_column:
         _renumber(task.project, old_status)
-    return old_status != status
+        activity.log(
+            project=task.project,
+            actor=actor,
+            verb=Verb.MOVED,
+            task=task,
+            detail=_moved_detail(old_status, status),
+        )
+    return changed_column
 
 
 @transaction.atomic
-def delete_task(task: Task) -> None:
+def delete_task(task: Task, *, actor) -> None:
     project, status = task.project, task.status
+    # Logged first so the entry can copy the title; target_task becomes NULL on delete.
+    activity.log(project=project, actor=actor, verb=Verb.DELETED, task=task)
     task.delete()
     _renumber(project, status)
+
+
+@transaction.atomic
+def add_comment(task: Task, *, author, body: str) -> Comment:
+    comment = Comment.objects.create(task=task, author=author, body=body.strip())
+    activity.log(project=task.project, actor=author, verb=Verb.COMMENTED, task=task)
+    return comment
