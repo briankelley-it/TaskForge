@@ -47,6 +47,10 @@
   thumbnail cards drawn from each board's real task counts.
 - **Global search.** Projects and tasks drop down as you type.
 - **Notifications.** A bell with an unread count for teammates' changes in your projects.
+- **Project covers.** Each card shows a placeholder until the owner uploads a cover image.
+  Pick one with your computer's file picker or drag it in, with an instant preview.
+  Uploads are checked with Pillow (JPG, PNG, WebP or GIF, up to 5 MB) and old files are
+  cleaned up.
 - **Stars and My tasks.** Star projects per person. A cross-project "My tasks" page has a
   "due this week" view.
 - **Permissions everywhere.** Non-members get a 404 on every project URL.
@@ -161,5 +165,8 @@ otherwise multiply the rows and inflate the counts.
    gunicorn with production settings by default.
 2. Set `SECRET_KEY` (50+ random characters), `DATABASE_URL`, `ALLOWED_HOSTS` and
    `CSRF_TRUSTED_ORIGINS`. `PORT` and `WEB_CONCURRENCY` are optional.
-3. Run `python manage.py migrate` as a release step. Optionally run
+3. Uploaded cover images go to `MEDIA_ROOT` (default `media/`). Whitenoise only serves
+   static files, so mount a persistent volume there and have your web server serve
+   `/media/`, or switch the `default` storage to S3-style object storage.
+4. Run `python manage.py migrate` as a release step. Optionally run
    `python manage.py seed_demo --password <something>`.
