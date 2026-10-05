@@ -1,33 +1,32 @@
 {% extends "allauth/layouts/base.html" %}
 {% load static %}
 {% comment %}
-  Split-screen layout for login, sign-up and the other account pages (password reset,
-  email confirmation…): a photo with a quote on the left, the form on the right.
+  Full-page split layout for login, sign-up and the other account pages (password reset,
+  email confirmation…): a full-height photo with a quote on the left, the form on the right.
   Pages can override: auth_image, auth_quote, auth_quote_name, auth_quote_role.
 {% endcomment %}
 {% block public_navbar %}{% endblock public_navbar %}
 {% block public_footer %}{% endblock public_footer %}
 
 {% block main %}
-  <main id="content" class="flex min-h-screen items-center justify-center bg-canvas px-4 py-6 sm:px-6 lg:py-12 dark:bg-canvas-dark">
-    <div class="grid w-full max-w-[1060px] overflow-hidden rounded-[28px] bg-white shadow-[0_40px_90px_-40px_rgba(29,32,48,0.45)] ring-1 ring-line md:min-h-[660px] md:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)] dark:bg-surface-dark dark:ring-line-dark">
+  <main id="content" class="grid min-h-screen bg-white md:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] dark:bg-surface-dark">
 
-      {# ---- Left: photo, logo, quote (hidden on phones) ---- #}
-      <aside class="relative hidden overflow-hidden md:block" aria-hidden="true">
+      {# ---- Left: full-height photo, logo, quote (hidden on phones) ---- #}
+      <aside class="sticky top-0 hidden h-screen overflow-hidden md:block" aria-hidden="true">
         <img src="{% block auth_image %}{% static 'img/auth/login.jpg' %}{% endblock auth_image %}" alt=""
              class="absolute inset-0 h-full w-full object-cover" width="1200" height="1798">
         {# Darken top and bottom so the white logo and quote stay readable on any photo. #}
         <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/5 via-45% to-black/80"></div>
 
-        <a href="{% url 'home' %}" class="absolute left-8 top-8 flex items-center gap-2.5 text-[22px] font-bold tracking-tight text-white">
+        <a href="{% url 'home' %}" class="absolute left-10 top-10 flex items-center gap-2.5 text-[22px] font-bold tracking-tight text-white">
           <span class="grid h-9 w-9 place-items-center rounded-xl bg-white/95 shadow-sm">
             {% include "components/logo.html" with class="h-6 w-6" prefix="auth" %}
           </span>
           TaskForge
         </a>
 
-        <figure class="absolute inset-x-8 bottom-9 text-white">
-          <blockquote class="text-[26px] font-semibold leading-[1.25] tracking-tight [text-wrap:balance]">
+        <figure class="absolute inset-x-10 bottom-12 max-w-lg text-white">
+          <blockquote class="text-[28px] font-semibold leading-[1.25] tracking-tight [text-wrap:balance] lg:text-[34px]">
             {% block auth_quote %}“Plan the week on Monday. Drag it to done by Friday.”{% endblock auth_quote %}
           </blockquote>
           <figcaption class="mt-6">
@@ -38,7 +37,7 @@
       </aside>
 
       {# ---- Right: the form ---- #}
-      <section class="flex flex-col px-6 py-8 sm:px-12 lg:px-16">
+      <section class="flex min-h-screen flex-col px-6 py-8 sm:px-12 lg:px-20">
         <div class="flex items-center justify-between">
           <a href="{% url 'home' %}" class="flex items-center gap-2 text-lg font-bold tracking-tight md:invisible">
             {% include "components/logo.html" with class="h-8 w-8" prefix="authm" %}
@@ -54,6 +53,5 @@
         </div>
         <p class="text-center text-xs text-muted">© TaskForge · Built with Django and HTMX</p>
       </section>
-    </div>
   </main>
 {% endblock main %}
