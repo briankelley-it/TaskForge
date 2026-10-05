@@ -49,6 +49,10 @@ class Membership(models.Model):
     )
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.MEMBER)
     joined_at = models.DateTimeField(auto_now_add=True)
+    # Per-person preferences live on the membership: starring a project or having
+    # opened it recently is about you and that project, not the project itself.
+    is_starred = models.BooleanField(default=False)
+    last_viewed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["joined_at"]
@@ -57,7 +61,10 @@ class Membership(models.Model):
         ]
         # The unique constraint already indexes (project, user). This one serves
         # "which projects is this user in?", which runs on every project request.
-        indexes = [models.Index(fields=["user", "project"], name="membership_user_project_idx")]
+        indexes = [
+            models.Index(fields=["user", "project"], name="membership_user_project_idx"),
+            models.Index(fields=["user", "-last_viewed_at"], name="membership_recent_idx"),
+        ]
 
     def __str__(self) -> str:
         return f"{self.user} in {self.project} ({self.get_role_display()})"

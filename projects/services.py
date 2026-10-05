@@ -9,6 +9,7 @@ from enum import StrEnum
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.utils import timezone
 
 from .models import Membership, Project
 
@@ -54,3 +55,15 @@ def remove_member(*, project: Project, user: User) -> None:
     if membership.is_owner:
         raise CannotRemoveOwner("The project owner can't be removed.")
     membership.delete()
+
+
+def record_view(membership: Membership) -> None:
+    """Remember when the user last opened this project, for "Recently viewed"."""
+    Membership.objects.filter(pk=membership.pk).update(last_viewed_at=timezone.now())
+
+
+def toggle_star(membership: Membership) -> bool:
+    """Star or unstar a project for this user. Returns the new state."""
+    membership.is_starred = not membership.is_starred
+    membership.save(update_fields=["is_starred"])
+    return membership.is_starred

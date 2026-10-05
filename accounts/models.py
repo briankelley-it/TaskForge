@@ -34,6 +34,8 @@ class User(AbstractUser):
     username = None
     email = models.EmailField("email address", unique=True)
     display_name = models.CharField(max_length=80, blank=True)
+    # Activity newer than this shows as unread in the notifications bell.
+    notifications_seen_at = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS: list[str] = []
@@ -45,6 +47,14 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return self.display_name or self.email
+
+    @property
+    def initials(self) -> str:
+        """Up to two letters for avatars: "Ada Lovelace" -> "AL", "grace@x.com" -> "GR"."""
+        words = self.display_name.split()
+        if len(words) >= 2:
+            return (words[0][0] + words[-1][0]).upper()
+        return self.name[:2].upper()
 
     @property
     def name(self) -> str:
