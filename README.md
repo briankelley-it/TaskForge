@@ -42,6 +42,13 @@
 - **Due dates.** Cards show "Due soon" and "Overdue" badges and highlights.
 - **CSV export.** Download a project's tasks, with the board's current filters applied.
 - **Responsive design.** Works on a phone, with a dark mode toggle that remembers your choice.
+- **Workspace dashboard.** Summary cards (created, shared, due this week, my open tasks) with
+  avatar stacks, your team, starred projects, and **recently viewed** projects shown as
+  thumbnail cards drawn from each board's real task counts.
+- **Global search.** Projects and tasks drop down as you type.
+- **Notifications.** A bell with an unread count for teammates' changes in your projects.
+- **Stars and My tasks.** Star projects per person. A cross-project "My tasks" page has a
+  "due this week" view.
 - **Permissions everywhere.** Non-members get a 404 on every project URL.
 
 ## Quick start
@@ -125,8 +132,12 @@ non-members and non-owners.
 
 The board loads every task in **one query**, using `select_related("assignee")` and
 `annotate(Count("comments"))`, and groups the tasks into columns in Python. Tests use
-`django_assert_num_queries` to prove the board takes the same 4 queries whether a project has 1
-task or 30, with or without filters.
+`django_assert_num_queries` to prove the page's query count stays fixed (7, including the
+sidebar and the header's member avatars) whether a project has 1 task or 30. The filtered board
+partial takes 4, and the dashboard takes 8 however many projects you have.
+
+The notifications badge loads with `hx-trigger="load"` after the page, so the bell never adds
+a query to, or slows down, the page itself.
 
 The dashboard's per-status task counts come from one query too. It uses
 `Count(..., filter=Q(...), distinct=True)`, because joining both members and tasks would
