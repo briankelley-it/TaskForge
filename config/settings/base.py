@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "allauth",
     "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     # Local apps
     "accounts",
     "projects",
@@ -66,6 +68,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "projects.context_processors.workspace",
+                "accounts.context_processors.auth_options",
             ],
         },
     },
@@ -100,6 +103,27 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
+# Sign-up asks for a name too, so avatars and the activity feed read "Ada Lovelace".
+ACCOUNT_FORMS = {"signup": "accounts.forms.SignupForm"}
+
+# "Continue with Google". Create an OAuth client in Google Cloud Console (redirect URI:
+# <your site>/accounts/google/login/callback/) and set both values. Until then the button
+# is hidden.
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID", default="")
+GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET", default="")
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APPS": (
+            [{"client_id": GOOGLE_CLIENT_ID, "secret": GOOGLE_CLIENT_SECRET}]
+            if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+            else []
+        ),
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"prompt": "select_account"},
+    }
+}
+# Google has already verified the email, so there's no need to ask the user to confirm it.
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
 # Internationalisation
 LANGUAGE_CODE = "en-us"

@@ -1,5 +1,5 @@
 Django~=5.2.17
-django-allauth~=65.19
+django-allauth[socialaccount]~=65.19
 django-environ~=0.14.0
 psycopg[binary]~=3.3
 gunicorn~=26.2
