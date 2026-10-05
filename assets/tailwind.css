@@ -6,7 +6,10 @@
 
 /* Only scan our own templates and JS for class names. */
 @source "../templates";
-@source "../*/templates";
+@source "../accounts/templates";
+@source "../projects/templates";
+@source "../tasks/templates";
+@source "../activity/templates";
 @source "../static/js/app.js";
 
 /* Dark mode follows a "dark" class on <html> so it can be toggled, not just follow the OS. */
