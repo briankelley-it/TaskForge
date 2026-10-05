@@ -10,12 +10,15 @@
       <stop offset="1" stop-color="#f59e0b"/>
     </linearGradient>
   </defs>
-  <!-- Tile -->
   <rect width="32" height="32" rx="8" fill="url(#tf-tile)"/>
-  <!-- Three Kanban columns: To Do, In Progress, Done. Work flows right and "heats up". -->
-  <rect x="6.5" y="8" width="5" height="16" rx="1.6" fill="#fff" fill-opacity=".55"/>
-  <rect x="13.5" y="8" width="5" height="11.5" rx="1.6" fill="#fff" fill-opacity=".9"/>
-  <rect x="20.5" y="8" width="5" height="7" rx="1.6" fill="url(#tf-ember)"/>
-  <!-- Spark under the Done column -->
-  <path d="M23 18.2l.9 1.9 1.9.9-1.9.9-.9 1.9-.9-1.9-1.9-.9 1.9-.9z" fill="#fde68a"/>
+  <!-- "TF" monogram: the letters share one top bar. Drawn as shapes so no font is needed. -->
+  <g fill="#fff">
+    <rect x="5" y="7.5" width="12.5" height="3.6" rx="1"/>  <!-- T bar -->
+    <rect x="9.45" y="7.5" width="3.6" height="17" rx="1"/>  <!-- T stem -->
+  </g>
+  <g fill="url(#tf-ember)">
+    <rect x="17.5" y="7.5" width="9.5" height="3.6" rx="1"/>  <!-- F top bar -->
+    <rect x="17.5" y="7.5" width="3.6" height="17" rx="1"/>  <!-- F stem -->
+    <rect x="17.5" y="14.6" width="7.5" height="3.2" rx="1"/>  <!-- F middle bar -->
+  </g>
 </svg>
