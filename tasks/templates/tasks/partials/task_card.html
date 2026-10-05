@@ -1,8 +1,8 @@
 <li id="task-{{ task.pk }}"
     data-move-url="{% url 'tasks:move' project.pk task.pk %}"
-    hx-get="{% url 'tasks:update' project.pk task.pk %}" hx-target="#modal"
+    hx-get="{% url 'tasks:detail' project.pk task.pk %}" hx-target="#modal"
     hx-trigger="click, keyup[key=='Enter']"
-    role="button" tabindex="0" aria-label="Edit {{ task.title }}"
+    role="button" tabindex="0" aria-label="Open {{ task.title }}"
     class="card cursor-grab select-none p-3 transition hover:border-indigo-300 active:cursor-grabbing dark:hover:border-indigo-700">
   <p class="text-sm font-medium leading-snug">{{ task.title }}</p>
   <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
@@ -13,6 +13,11 @@
     {% if task.due_date %}
       <span class="{% if task.is_overdue %}font-semibold text-red-600 dark:text-red-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
         {% if task.is_overdue %}Overdue · {% endif %}{{ task.due_date|date:"M j" }}
+      </span>
+    {% endif %}
+    {% if task.comment_count %}
+      <span class="text-slate-500 dark:text-slate-400" title="{{ task.comment_count }} comment{{ task.comment_count|pluralize }}">
+        <span aria-hidden="true">💬</span> {{ task.comment_count }}
       </span>
     {% endif %}
     {% if task.assignee %}

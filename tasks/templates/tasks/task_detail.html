@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block head_title %}{{ task.title }}{% endblock head_title %}
+{% block content %}
+  <nav class="mb-4 text-sm"><a href="{{ project.get_absolute_url }}" class="link">← {{ project.name }}</a></nav>
+  {% include "tasks/partials/task_detail.html" with page=True %}
+{% endblock content %}

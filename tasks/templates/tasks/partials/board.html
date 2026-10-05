@@ -1,9 +1,15 @@
-{# The three columns. Reloads itself whenever the server sends an HX-Trigger: boardChanged. #}
+{# The three columns. Reloads itself (keeping the current filters) whenever the server #}
+{# sends HX-Trigger: boardChanged. #}
 <div id="board"
-     hx-get="{% url 'tasks:board' project.pk %}"
+     hx-get="{% url 'tasks:board' project.pk %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
      hx-trigger="boardChanged from:body"
      hx-swap="outerHTML"
      class="grid gap-4 md:grid-cols-3">
+  {% if filtering %}
+    <p class="text-sm text-slate-500 md:col-span-3 dark:text-slate-400">
+      Showing filtered tasks. Drag and drop is paused; <a href="{% url 'tasks:board' project.pk %}" class="link">clear filters</a> to reorder.
+    </p>
+  {% endif %}
   {% for column in columns %}
     <section class="flex flex-col rounded-xl bg-slate-100 p-3 dark:bg-slate-800/60" aria-labelledby="col-{{ column.status }}">
       <header class="mb-3 flex items-center justify-between px-1">
@@ -18,8 +24,9 @@
            aria-label="Add a task to {{ column.label }}">+</a>
       </header>
       {# No whitespace inside the list when it's empty, so the :empty placeholder shows. #}
-      <ul data-sortable data-status="{{ column.status }}"
-          class="min-h-24 flex-1 space-y-2 rounded-lg empty:border-2 empty:border-dashed empty:border-slate-300 empty:before:block empty:before:p-6 empty:before:text-center empty:before:text-xs empty:before:text-slate-400 empty:before:content-['Drop_tasks_here'] dark:empty:border-slate-600">{% for task in column.tasks %}{% include "tasks/partials/task_card.html" %}{% endfor %}</ul>
+      {# While filtering, data-sortable is left off so app.js doesn't enable dragging. #}
+      <ul {% if not filtering %}data-sortable{% endif %} data-status="{{ column.status }}"
+          class="min-h-24 flex-1 space-y-2 rounded-lg empty:border-2 empty:border-dashed empty:border-slate-300 empty:before:block empty:before:p-6 empty:before:text-center empty:before:text-xs empty:before:text-slate-400 {% if filtering %}empty:before:content-['No_matching_tasks']{% else %}empty:before:content-['Drop_tasks_here']{% endif %} dark:empty:border-slate-600">{% for task in column.tasks %}{% include "tasks/partials/task_card.html" %}{% endfor %}</ul>
     </section>
   {% endfor %}
 </div>

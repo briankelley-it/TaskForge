@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block head_title %}Activity · {{ project.name }}{% endblock head_title %}
+{% block content %}
+  {% include "projects/partials/project_header.html" %}
+  <section class="card max-w-3xl p-6">
+    {% if activities %}
+      <ol class="space-y-4">
+        {% for item in activities %}
+          <li class="flex gap-3">
+            <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-semibold uppercase
+              {% if item.verb == 'created' %}bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300
+              {% elif item.verb == 'moved' %}bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300
+              {% elif item.verb == 'commented' %}bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300
+              {% elif item.verb == 'deleted' %}bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300
+              {% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300{% endif %}"
+              aria-hidden="true">{{ item.actor.name|default:"?"|slice:":2" }}</span>
+            <div class="min-w-0 text-sm">
+              <p>
+                <span class="font-medium">{{ item.actor.name|default:"Someone" }}</span>
+                {{ item.get_verb_display }}
+                {% if item.target_task %}
+                  <a href="{{ item.target_task.get_absolute_url }}" class="link">“{{ item.target_title }}”</a>
+                {% else %}
+                  <span class="font-medium">“{{ item.target_title }}”</span>
+                {% endif %}
+                {{ item.detail }}
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                <time datetime="{{ item.created_at|date:'c' }}" title="{{ item.created_at }}">{{ item.created_at|timesince }} ago</time>
+              </p>
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+      {% if is_paginated %}
+        <nav class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 text-sm dark:border-slate-700">
+          {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="link">← Newer</a>{% else %}<span></span>{% endif %}
+          <span class="text-slate-500">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+          {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="link">Older →</a>{% else %}<span></span>{% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <p class="text-sm text-slate-500 dark:text-slate-400">Nothing has happened yet. Create a task to get things moving.</p>
+    {% endif %}
+  </section>
+{% endblock content %}

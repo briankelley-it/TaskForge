@@ -1,0 +1,47 @@
+{% comment %}
+  Task details and comments. Loaded into #modal by HTMX; included by task_detail.html with
+  page=True for the no-JavaScript version.
+{% endcomment %}
+{% if not page %}<div data-modal-backdrop class="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-900/50 p-4 sm:items-center">{% endif %}
+  <article class="card w-full max-w-2xl p-6" {% if not page %}role="dialog" aria-modal="true" aria-labelledby="modal-title"{% endif %}>
+    <header class="flex items-start justify-between gap-4">
+      <div class="min-w-0">
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ task.get_status_display }}</p>
+        <h2 id="modal-title" class="mt-1 text-xl font-semibold leading-snug">{{ task.title }}</h2>
+      </div>
+      <div class="flex shrink-0 items-center gap-2">
+        <a href="{{ task.get_edit_url }}" hx-get="{{ task.get_edit_url }}" hx-target="#modal" class="btn-secondary">Edit</a>
+        {% if not page %}<button type="button" data-close-modal aria-label="Close" class="px-1 text-xl leading-none text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">&times;</button>{% endif %}
+      </div>
+    </header>
+
+    <dl class="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4">
+      <div>
+        <dt class="text-xs text-slate-500 dark:text-slate-400">Priority</dt>
+        <dd class="font-medium">{{ task.get_priority_display }}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-slate-500 dark:text-slate-400">Assignee</dt>
+        <dd class="font-medium">{{ task.assignee.name|default:"Unassigned" }}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-slate-500 dark:text-slate-400">Due</dt>
+        <dd class="font-medium {% if task.is_overdue %}text-red-600 dark:text-red-400{% endif %}">
+          {% if task.due_date %}{{ task.due_date|date:"M j, Y" }}{% if task.is_overdue %} (overdue){% endif %}{% else %}—{% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-xs text-slate-500 dark:text-slate-400">Created by</dt>
+        <dd class="font-medium">{{ task.created_by.name|default:"—" }}</dd>
+      </div>
+    </dl>
+
+    {% if task.description %}
+      <p class="mt-4 whitespace-pre-line text-sm text-slate-700 dark:text-slate-300">{{ task.description }}</p>
+    {% endif %}
+
+    <div class="mt-6 border-t border-slate-100 pt-4 dark:border-slate-700">
+      {% include "tasks/partials/comments.html" %}
+    </div>
+  </article>
+{% if not page %}</div>{% endif %}

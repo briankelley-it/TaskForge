@@ -19,6 +19,9 @@
   {% url 'projects:members' project.pk as members_url %}
   <a href="{{ board_url }}"
      class="-mb-px border-b-2 px-3 py-2 {% if active_tab == 'board' %}border-indigo-600 font-semibold text-indigo-600 dark:text-indigo-400{% else %}border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200{% endif %}">Board</a>
+  {% url 'activity:feed' project.pk as activity_url %}
+  <a href="{{ activity_url }}"
+     class="-mb-px border-b-2 px-3 py-2 {% if active_tab == 'activity' %}border-indigo-600 font-semibold text-indigo-600 dark:text-indigo-400{% else %}border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200{% endif %}">Activity</a>
   <a href="{{ members_url }}"
      class="-mb-px border-b-2 px-3 py-2 {% if active_tab == 'members' %}border-indigo-600 font-semibold text-indigo-600 dark:text-indigo-400{% else %}border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200{% endif %}">Members</a>
 </div>
