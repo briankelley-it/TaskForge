@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from accounts.views import demo_login
 from projects.views import home, search
 from tasks.views import my_tasks
 
@@ -15,6 +16,7 @@ urlpatterns = [
     path("projects/", include("projects.urls")),
     path("projects/<int:project_pk>/", include("tasks.urls")),
     path("projects/<int:project_pk>/activity/", include("activity.urls")),
+    path("accounts/demo/", demo_login, name="demo_login"),
     path("accounts/", include("allauth.urls")),
     path("admin/", admin.site.urls),
 ]

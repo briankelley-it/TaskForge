@@ -122,6 +122,12 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {"prompt": "select_account"},
     }
 }
+# Public demo account shown on the login and sign-up pages ("Log in to the demo").
+# `seed_demo` creates it with these details; set DEMO_LOGIN_ENABLED=False to hide it.
+DEMO_LOGIN_ENABLED = env.bool("DEMO_LOGIN_ENABLED", default=True)
+DEMO_EMAIL = env("DEMO_EMAIL", default="demo@taskforge.dev")
+DEMO_PASSWORD = env("DEMO_PASSWORD", default="taskforge-demo")
+
 # Google has already verified the email, so there's no need to ask the user to confirm it.
 SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 

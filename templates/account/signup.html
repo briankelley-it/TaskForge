@@ -11,6 +11,8 @@
     Set up a project and invite your team in under a minute.
   </p>
 
+  {% include "account/partials/demo_login.html" %}
+
   {% if form.non_field_errors %}
     <div role="alert" class="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
       {{ form.non_field_errors|join:" " }}

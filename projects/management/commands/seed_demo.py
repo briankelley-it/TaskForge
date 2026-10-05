@@ -8,6 +8,7 @@ filled in too. Running it again deletes the old demo data and starts over.
 import datetime
 import random
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -20,8 +21,9 @@ from tasks.models import Task
 
 User = get_user_model()
 
-DEMO_EMAIL = "demo@taskforge.dev"
-DEFAULT_PASSWORD = "taskforge-demo"
+# The login and sign-up pages advertise these, so they come from settings.
+DEMO_EMAIL = settings.DEMO_EMAIL
+DEFAULT_PASSWORD = settings.DEMO_PASSWORD
 TEAMMATES = [
     ("sam@taskforge.dev", "Sam Rivera"),
     ("priya@taskforge.dev", "Priya Natarajan"),

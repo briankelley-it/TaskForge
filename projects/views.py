@@ -29,9 +29,10 @@ User = get_user_model()
 
 
 def home(request: HttpRequest) -> HttpResponse:
+    """Signed in: the dashboard. Signed out: the sign-up page, which offers the demo."""
     if request.user.is_authenticated:
         return redirect("projects:dashboard")
-    return render(request, "home.html")
+    return redirect("account_signup")
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
