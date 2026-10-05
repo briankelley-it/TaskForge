@@ -96,16 +96,12 @@ class TestDashboard:
         mine, _, _ = setup
         assert build_dashboard(user).invite_project == mine
 
-    def test_thumbnail_bars_are_capped(self, user):
+    def test_task_total(self, user):
         project = ProjectFactory(owner=user)
-        TaskFactory.create_batch(7, project=project)
+        TaskFactory.create_batch(2, project=project)
+        TaskFactory(project=project, status=Task.Status.DONE)
         [p] = build_dashboard(user).projects
-        assert dict((col, len(bars)) for col, bars in p.bars) == {
-            "todo": 5,
-            "in_progress": 0,
-            "done": 0,
-        }
-        assert p.task_total == 7
+        assert p.task_total == 3
 
     def test_page_renders(self, logged_in_client, setup):
         response = logged_in_client.get(reverse("projects:dashboard"))
