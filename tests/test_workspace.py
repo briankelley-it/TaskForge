@@ -286,10 +286,10 @@ class TestShell:
         assertContains(response, reverse("notifications:badge"))
         assertContains(response, project.name)
 
-    def test_signed_out_pages_keep_the_simple_navbar(self, client):
-        response = client.get(reverse("home"))
+    def test_signed_out_pages_have_no_workspace_shell(self, client):
+        response = client.get(reverse("account_signup"))
         assertNotContains(response, 'id="global-search"')
-        assertContains(response, "Sign up")
+        assertNotContains(response, 'aria-label="Main navigation"')
 
     @pytest.mark.parametrize(
         "path,params,expected",

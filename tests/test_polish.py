@@ -105,7 +105,7 @@ class TestAgoFilter:
 
 
 def test_dark_mode_toggle_and_no_flash_script_are_on_every_page(client):
-    response = client.get(reverse("home"))
+    response = client.get(reverse("account_signup"))
     assertContains(response, "data-theme-toggle")
     assertContains(response, 'localStorage.getItem("theme")')
 

@@ -54,10 +54,10 @@ class TestUserModel:
 
 
 class TestAuthPages:
-    def test_home_page_renders_for_anonymous_user(self, client):
+    def test_home_sends_visitors_to_sign_up(self, client):
         response = client.get(reverse("home"))
-        assert response.status_code == 200
-        assert b"Sign up" in response.content
+        assert response.status_code == 302
+        assert response.url == reverse("account_signup")
 
     def test_home_page_redirects_logged_in_user_to_dashboard(self, logged_in_client):
         response = logged_in_client.get(reverse("home"))
@@ -72,7 +72,7 @@ class TestAuthPages:
         assert response.status_code == 200
 
     def test_base_template_sends_csrf_token_with_htmx_requests(self, client):
-        response = client.get(reverse("home"))
+        response = client.get(reverse("account_signup"))
         assert b"X-CSRFToken" in response.content
 
     def test_signup_creates_user_and_logs_in(self, client):
