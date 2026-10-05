@@ -1,0 +1,41 @@
+{% extends "account/base_entrance.html" %}
+{% load static %}
+{% block head_title %}Sign up{% endblock head_title %}
+{% block auth_image %}{% static 'img/auth/signup.jpg' %}{% endblock auth_image %}
+{% block auth_quote %}“Every task, every teammate, one board everyone can see.”{% endblock auth_quote %}
+{% block auth_quote_role %}Free for small teams{% endblock auth_quote_role %}
+
+{% block content %}
+  <h1 class="text-center text-[28px] font-bold leading-tight tracking-tight">Create your TaskForge account</h1>
+  <p class="mx-auto mt-2 max-w-xs text-center text-sm leading-relaxed text-muted">
+    Set up a project and invite your team in under a minute.
+  </p>
+
+  {% if form.non_field_errors %}
+    <div role="alert" class="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+      {{ form.non_field_errors|join:" " }}
+    </div>
+  {% endif %}
+
+  <form method="post" action="{% url 'account_signup' %}" class="mt-8 space-y-3">
+    {% csrf_token %}
+    {{ redirect_field }}
+    {% include "components/float_field.html" with field=form.display_name autocomplete="name" autofocus=True %}
+    {% include "components/float_field.html" with field=form.email type="email" autocomplete="email" %}
+    {% include "components/float_field.html" with field=form.password1 type="password" autocomplete="new-password" password=True strength=True %}
+    {% if form.password2 %}
+      {% include "components/float_field.html" with field=form.password2 type="password" autocomplete="new-password" password=True %}
+    {% endif %}
+
+    <button type="submit" class="!mt-5 flex h-12 w-full cursor-pointer items-center justify-center rounded-full bg-indigo-500 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:bg-indigo-600 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/30 active:scale-[0.99]">
+      Create account
+    </button>
+  </form>
+
+  {% include "account/partials/social_login.html" %}
+
+  <p class="mt-8 text-center text-sm text-muted">
+    Already have an account?
+    <a href="{% url 'account_login' %}" class="font-semibold text-indigo-500 hover:text-indigo-600 dark:text-indigo-400">Log in</a>
+  </p>
+{% endblock content %}

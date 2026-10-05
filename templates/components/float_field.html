@@ -1,0 +1,34 @@
+{% comment %}
+  A field with its label inside the box, as in the login design.
+  Usage: {% include "components/float_field.html" with field=form.login type="email" autocomplete="email" %}
+  Options: password=True (adds a show/hide button and never echoes the value back),
+  strength=True (password strength meter, for sign-up).
+{% endcomment %}
+<div>
+  <div class="float-field {% if field.errors %}float-field-error{% endif %}">
+    <label for="{{ field.auto_id }}">{{ field.label }}</label>
+    <input id="{{ field.auto_id }}" name="{{ field.html_name }}" type="{{ type|default:'text' }}"
+           {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+           {% if not password and field.value %}value="{{ field.value }}"{% endif %}
+           {% if field.field.required %}required{% endif %}
+           {% if autofocus %}autofocus{% endif %}
+           {% if field.errors %}aria-invalid="true" aria-describedby="{{ field.auto_id }}_error"{% endif %}
+           {% if password %}data-password{% endif %}>
+    {% if password %}
+      <button type="button" data-password-toggle aria-label="Show password" aria-pressed="false"
+              class="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 cursor-pointer place-items-center rounded-lg text-muted transition hover:bg-canvas hover:text-ink dark:hover:bg-white/5 dark:hover:text-white">
+        <svg data-eye viewBox="0 0 24 24" class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg data-eye-off viewBox="0 0 24 24" class="hidden h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.6A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C3.9 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.7 0 3.2-.5 4.4-1.2M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+      </button>
+    {% endif %}
+  </div>
+  {% if strength %}
+    <div data-strength-for="{{ field.auto_id }}" class="mt-2" aria-live="polite">
+      <div class="grid grid-cols-4 gap-1.5">
+        <span class="h-1 rounded-full bg-line dark:bg-line-dark"></span><span class="h-1 rounded-full bg-line dark:bg-line-dark"></span><span class="h-1 rounded-full bg-line dark:bg-line-dark"></span><span class="h-1 rounded-full bg-line dark:bg-line-dark"></span>
+      </div>
+      <p data-strength-label class="mt-1.5 text-xs text-muted">Use 8 or more characters with a mix of letters, numbers and symbols.</p>
+    </div>
+  {% endif %}
+  {% if field.errors %}<p id="{{ field.auto_id }}_error" class="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400">{{ field.errors|join:" " }}</p>{% endif %}
+</div>

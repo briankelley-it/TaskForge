@@ -132,3 +132,45 @@ document.addEventListener("change", (event) => {
     }
   }),
 );
+
+// ---- Auth pages: show/hide password and a password strength meter ------------------------
+
+document.addEventListener("click", (event) => {
+  const toggle = event.target.closest("[data-password-toggle]");
+  if (!toggle) return;
+  const input = toggle.parentElement.querySelector("input");
+  const show = input.type === "password";
+  input.type = show ? "text" : "password";
+  toggle.setAttribute("aria-pressed", String(show));
+  toggle.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  toggle.querySelector("[data-eye]").classList.toggle("hidden", show);
+  toggle.querySelector("[data-eye-off]").classList.toggle("hidden", !show);
+});
+
+const STRENGTH = [
+  ["", "Use 8 or more characters with a mix of letters, numbers and symbols."],
+  ["bg-red-500", "Weak: add more characters."],
+  ["bg-amber-400", "Fair: try adding numbers or symbols."],
+  ["bg-lime-500", "Good password."],
+  ["bg-emerald-500", "Strong password."],
+];
+
+function passwordScore(value) {
+  if (!value) return 0;
+  let score = value.length >= 8 ? 1 : 0;
+  if (value.length >= 12) score += 1;
+  if (/[a-z]/.test(value) && /[A-Z]/.test(value)) score += 1;
+  if (/\d/.test(value) && /[^A-Za-z0-9]/.test(value)) score += 1;
+  return Math.max(1, Math.min(score, 4));
+}
+
+document.addEventListener("input", (event) => {
+  const meter = document.querySelector(`[data-strength-for="${event.target.id}"]`);
+  if (!meter) return;
+  const score = passwordScore(event.target.value);
+  const [colour, label] = STRENGTH[score];
+  meter.querySelectorAll("span").forEach((bar, index) => {
+    bar.className = `h-1 rounded-full transition ${index < score ? colour : "bg-line dark:bg-line-dark"}`;
+  });
+  meter.querySelector("[data-strength-label]").textContent = label;
+});

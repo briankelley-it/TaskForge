@@ -1,0 +1,48 @@
+{% extends "account/base_entrance.html" %}
+{% load static %}
+{% block head_title %}Log in{% endblock head_title %}
+{% block auth_image %}{% static 'img/auth/login.jpg' %}{% endblock auth_image %}
+
+{% block content %}
+  <h1 class="text-center text-[28px] font-bold leading-tight tracking-tight">Welcome back to TaskForge</h1>
+  <p class="mx-auto mt-2 max-w-xs text-center text-sm leading-relaxed text-muted">
+    Pick up right where your team left off: every board, task and comment.
+  </p>
+
+  {% if form.non_field_errors %}
+    <div role="alert" class="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+      {{ form.non_field_errors|join:" " }}
+    </div>
+  {% endif %}
+
+  <form method="post" action="{% url 'account_login' %}" class="mt-8 space-y-3">
+    {% csrf_token %}
+    {{ redirect_field }}
+    {% include "components/float_field.html" with field=form.login type="email" autocomplete="email" autofocus=True %}
+    {% include "components/float_field.html" with field=form.password type="password" autocomplete="current-password" password=True %}
+
+    <div class="pt-1">
+      <a href="{% url 'account_reset_password' %}" class="text-sm font-semibold text-indigo-500 hover:text-indigo-600 dark:text-indigo-400">Forgot password?</a>
+    </div>
+
+    {% if form.remember %}
+      {# allauth's "Remember me", drawn as a switch: off = the session ends when the browser closes. #}
+      <label class="flex cursor-pointer items-center justify-between gap-4 py-1.5 text-sm text-muted">
+        Remember sign in details
+        <input type="checkbox" name="remember" class="peer sr-only" {% if form.remember.value %}checked{% endif %}>
+        <span aria-hidden="true" class="relative h-7 w-12 shrink-0 rounded-full bg-slate-200 transition after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition peer-checked:bg-indigo-500 peer-checked:after:translate-x-5 peer-focus-visible:ring-4 peer-focus-visible:ring-indigo-500/25 dark:bg-white/10"></span>
+      </label>
+    {% endif %}
+
+    <button type="submit" class="mt-2 flex h-12 w-full cursor-pointer items-center justify-center rounded-full bg-indigo-500 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:bg-indigo-600 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/30 active:scale-[0.99]">
+      Log in
+    </button>
+  </form>
+
+  {% include "account/partials/social_login.html" %}
+
+  <p class="mt-8 text-center text-sm text-muted">
+    Don't have an account?
+    <a href="{% url 'account_signup' %}" class="font-semibold text-indigo-500 hover:text-indigo-600 dark:text-indigo-400">Sign up</a>
+  </p>
+{% endblock content %}

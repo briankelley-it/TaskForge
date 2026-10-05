@@ -89,7 +89,7 @@ html.dark {
   .form-stack label {
     @apply mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300;
   }
-  .form-stack input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .form-stack input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(.float-field *),
   .form-stack select,
   .form-stack textarea {
     @apply field;
@@ -103,6 +103,27 @@ html.dark {
   }
   .form-stack ul.errorlist {
     @apply mb-2 text-sm text-red-600 dark:text-red-400;
+  }
+
+  /* Auth pages: inputs with the label inside the box, as in the login design. */
+  .float-field {
+    @apply relative rounded-xl border border-line bg-white transition
+      focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/15
+      dark:border-line-dark dark:bg-canvas-dark;
+  }
+  .float-field > label {
+    @apply pointer-events-none absolute left-3.5 top-2 text-[11px] font-medium text-muted;
+  }
+  .float-field > input {
+    @apply block h-[52px] w-full rounded-xl bg-transparent px-3.5 pb-1.5 pt-5 text-sm text-ink
+      outline-none placeholder:text-muted/60 dark:text-white;
+  }
+  .float-field > input[data-password] {
+    @apply pr-12 tracking-wide;
+  }
+  .float-field-error {
+    @apply border-red-300 focus-within:border-red-500 focus-within:ring-red-500/15
+      dark:border-red-500/50;
   }
 
   /* Overlapping avatar stack, as in "(X)(U) Team + 02". */
