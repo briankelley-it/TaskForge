@@ -54,6 +54,9 @@ class Task(models.Model):
         return self.title
 
     def get_absolute_url(self) -> str:
+        return reverse("tasks:detail", kwargs={"project_pk": self.project_id, "pk": self.pk})
+
+    def get_edit_url(self) -> str:
         return reverse("tasks:update", kwargs={"project_pk": self.project_id, "pk": self.pk})
 
     @property
@@ -63,3 +66,20 @@ class Task(models.Model):
             and self.status != self.Status.DONE
             and self.due_date < timezone.localdate()
         )
+
+
+class Comment(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="comments")
+    # SET_NULL keeps the conversation readable if a commenter deletes their account.
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="comments"
+    )
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        indexes = [models.Index(fields=["task", "created_at"], name="comment_task_idx")]
+
+    def __str__(self) -> str:
+        return f"Comment by {self.author or 'deleted user'} on {self.task}"

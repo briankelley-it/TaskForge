@@ -22,7 +22,7 @@ select = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["accounts", "config", "projects", "tasks", "tests"]
+known-first-party = ["accounts", "activity", "config", "projects", "tasks", "tests"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"
@@ -35,7 +35,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["accounts", "config", "projects", "tasks"]
+source = ["accounts", "activity", "config", "projects", "tasks"]
 omit = [
     "*/migrations/*",
     "config/asgi.py",
