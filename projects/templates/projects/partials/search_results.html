@@ -1,0 +1,33 @@
+{% load taskforge %}{% if query %}
+<div class="card max-h-[70vh] overflow-y-auto p-2 shadow-lift" role="listbox" aria-label="Search results">
+  {% if results_projects %}
+    <p class="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-muted">Projects</p>
+    {% for p in results_projects %}
+      <a href="{{ p.get_absolute_url }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-canvas dark:hover:bg-white/5" role="option">
+        {% project_avatar p "sm" %}
+        <span class="min-w-0">
+          <span class="block truncate text-sm font-medium">{{ p.name }}</span>
+          {% if p.description %}<span class="block truncate text-xs text-muted">{{ p.description }}</span>{% endif %}
+        </span>
+      </a>
+    {% endfor %}
+  {% endif %}
+  {% if results_tasks %}
+    <p class="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted">Tasks</p>
+    {% for t in results_tasks %}
+      <a href="{{ t.get_absolute_url }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-canvas dark:hover:bg-white/5" role="option">
+        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-canvas text-slate-400 dark:bg-white/5">{% include "components/icon.html" with name="clipboard" class="h-4 w-4" %}</span>
+        <span class="min-w-0">
+          <span class="block truncate text-sm font-medium">{{ t.title }}</span>
+          <span class="block truncate text-xs text-muted">{{ t.project.name }} · {{ t.get_status_display }}</span>
+        </span>
+      </a>
+    {% endfor %}
+  {% endif %}
+  {% if not results_projects and not results_tasks %}
+    <p class="px-3 py-6 text-center text-sm text-muted">No projects or tasks match “{{ query }}”.</p>
+  {% else %}
+    <a href="{% url 'search' %}?q={{ query|urlencode }}" class="mt-1 block rounded-xl px-3 py-2 text-center text-xs font-medium text-indigo-500 hover:bg-canvas dark:hover:bg-white/5">See all results</a>
+  {% endif %}
+</div>
+{% endif %}

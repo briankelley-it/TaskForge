@@ -92,10 +92,13 @@ class Command(BaseCommand):
         Project.objects.filter(owner=demo).delete()
 
         task_count = 0
-        for (name, description), tasks in PROJECTS.items():
+        for index, ((name, description), tasks) in enumerate(PROJECTS.items()):
             project = project_services.create_project(
                 owner=demo, name=name, description=description
             )
+            if index == 0:
+                # Star one project so the dashboard shows off the feature.
+                project_services.toggle_star(project.memberships.get(user=demo))
             for member in team[1:]:
                 project_services.invite_member(project=project, email=member.email)
 

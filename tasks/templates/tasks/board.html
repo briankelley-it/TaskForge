@@ -16,16 +16,16 @@
       <label class="sr-only" for="board-search">Search tasks</label>
       <input id="board-search" type="search" name="q" value="{{ filter_form.q.value|default:'' }}"
              placeholder="Search by title…" autocomplete="off"
-             class="w-44 rounded-lg border border-slate-300 bg-white px-3 py-1.5 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 sm:w-56 dark:border-slate-600 dark:bg-slate-900">
-      <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 has-checked:border-indigo-500 has-checked:bg-indigo-50 has-checked:text-indigo-700 dark:border-slate-600 dark:bg-slate-900 dark:has-checked:bg-indigo-950 dark:has-checked:text-indigo-300">
+             class="field w-44 py-2 sm:w-56">
+      <label class="flex cursor-pointer items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-2 has-checked:border-indigo-500 has-checked:bg-indigo-50 has-checked:text-indigo-700 dark:border-line-dark dark:bg-surface-dark dark:has-checked:bg-indigo-950 dark:has-checked:text-indigo-300">
         <input type="checkbox" name="mine" value="on" class="accent-indigo-600" {% if filter_form.mine.value %}checked{% endif %}> My tasks
       </label>
-      <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 has-checked:border-red-400 has-checked:bg-red-50 has-checked:text-red-700 dark:border-slate-600 dark:bg-slate-900 dark:has-checked:bg-red-950 dark:has-checked:text-red-300">
+      <label class="flex cursor-pointer items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-2 has-checked:border-red-400 has-checked:bg-red-50 has-checked:text-red-700 dark:border-line-dark dark:bg-surface-dark dark:has-checked:bg-red-950 dark:has-checked:text-red-300">
         <input type="checkbox" name="overdue" value="on" class="accent-red-600" {% if filter_form.overdue.value %}checked{% endif %}> Overdue
       </label>
       <label class="sr-only" for="board-priority">Priority</label>
       <select id="board-priority" name="priority"
-              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 dark:border-slate-600 dark:bg-slate-900">
+              class="field w-auto py-2">
         {% for value, label in filter_form.fields.priority.choices %}
           <option value="{{ value }}" {% if filter_form.priority.value == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}

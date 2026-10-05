@@ -1,4 +1,4 @@
-{# Members panel. Rendered inside the project page and returned alone by the HTMX member endpoints. #}
+{% load taskforge %}{# Members panel. Rendered inside the project page and returned alone by the HTMX member endpoints. #}
 <section id="members" class="card p-6">
   <h2 class="font-semibold">Members <span class="text-sm font-normal text-slate-500">({{ memberships|length }})</span></h2>
 
@@ -16,9 +16,12 @@
   <ul class="mt-4 divide-y divide-slate-100 dark:divide-slate-700">
     {% for m in memberships %}
       <li class="flex items-center justify-between gap-3 py-2">
-        <div class="min-w-0">
+        <div class="flex min-w-0 items-center gap-3">
+          {% avatar m.user "md" %}
+          <div class="min-w-0">
           <p class="truncate text-sm font-medium">{{ m.user.name }}{% if m.user == user %} <span class="text-slate-400">(you)</span>{% endif %}</p>
           <p class="truncate text-xs text-slate-500 dark:text-slate-400">{{ m.user.email }}</p>
+          </div>
         </div>
         <div class="flex shrink-0 items-center gap-2">
           <span class="rounded-full px-2 py-0.5 text-xs {% if m.is_owner %}bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300{% endif %}">

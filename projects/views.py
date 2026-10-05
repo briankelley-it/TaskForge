@@ -8,16 +8,17 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q
+from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
-from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, TemplateView, UpdateView
 
 from tasks.models import Task
 
 from . import services
+from .dashboard import VIEWS, build_dashboard
 from .forms import InviteForm, ProjectForm
 from .htmx import is_htmx
 from .models import Membership, Project
@@ -32,26 +33,55 @@ def home(request: HttpRequest) -> HttpResponse:
     return render(request, "home.html")
 
 
-class DashboardView(LoginRequiredMixin, ListView):
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "projects/dashboard.html"
-    context_object_name = "projects"
 
-    def get_queryset(self):
-        # Two multi-valued joins (memberships and tasks) multiply rows, so every count
-        # is distinct. One query for the whole dashboard, however many projects.
-        tasks = Task.Status
-        return (
-            Project.objects.for_user(self.request.user)
-            .select_related("owner")
-            .annotate(
-                member_count=Count("memberships", distinct=True),
-                todo_count=Count("tasks", filter=Q(tasks__status=tasks.TODO), distinct=True),
-                in_progress_count=Count(
-                    "tasks", filter=Q(tasks__status=tasks.IN_PROGRESS), distinct=True
-                ),
-                done_count=Count("tasks", filter=Q(tasks__status=tasks.DONE), distinct=True),
-            )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dashboard = build_dashboard(self.request.user, self.request.GET.get("view", "all"))
+        context.update(dashboard=dashboard, projects=dashboard.projects, views=VIEWS)
+        return context
+
+
+@login_required
+@require_POST
+def toggle_star(request: HttpRequest, pk: int) -> HttpResponse:
+    """Star or unstar a project. HTMX swaps just the star button."""
+    membership = get_membership(request.user, pk)
+    starred = services.toggle_star(membership)
+    if is_htmx(request):
+        project = membership.project
+        project.is_starred = starred
+        return render(request, "projects/partials/star_button.html", {"project": project})
+    return redirect("projects:dashboard")
+
+
+@login_required
+def search(request: HttpRequest) -> HttpResponse:
+    """Search projects and task titles across every project the user belongs to.
+
+    The top bar asks for the dropdown partial on every keystroke (via HTMX); pressing
+    Enter submits the same form to the full results page.
+    """
+    query = request.GET.get("q", "").strip()
+    limit = 5 if is_htmx(request) else 50
+    projects, tasks = [], []
+    if query:
+        mine = Project.objects.for_user(request.user)
+        projects = list(
+            mine.filter(Q(name__icontains=query) | Q(description__icontains=query))[:limit]
         )
+        tasks = list(
+            Task.objects.filter(project__in=mine, title__icontains=query)
+            .select_related("project")
+            .order_by("-updated_at")[: limit * 2]
+        )
+    template = (
+        "projects/partials/search_results.html" if is_htmx(request) else "projects/search.html"
+    )
+    return render(
+        request, template, {"query": query, "results_projects": projects, "results_tasks": tasks}
+    )
 
 
 class ProjectCreateView(LoginRequiredMixin, CreateView):

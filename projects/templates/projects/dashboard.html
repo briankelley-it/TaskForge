@@ -1,51 +1,102 @@
 {% extends "base.html" %}
+{% load taskforge %}
 {% block head_title %}Dashboard{% endblock head_title %}
 {% block content %}
-  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight">Your projects</h1>
-      <p class="text-sm text-slate-500 dark:text-slate-400">Projects you own or have been invited to.</p>
-    </div>
-    <a href="{% url 'projects:create' %}" class="btn-primary">+ New project</a>
-  </div>
+  {% with d=dashboard %}
+  <h1 class="sr-only">Dashboard</h1>
 
-  {% if projects %}
-    <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {% for project in projects %}
-        <li>
-          <a href="{{ project.get_absolute_url }}"
-             class="card block h-full p-5 transition hover:border-indigo-300 hover:shadow-md dark:hover:border-indigo-700">
-            <h2 class="font-semibold">{{ project.name }}</h2>
-            {% if project.description %}
-              <p class="mt-1 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{{ project.description }}</p>
-            {% endif %}
-            <dl class="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
-              <div class="rounded-lg bg-slate-100 py-2 dark:bg-slate-700/50">
-                <dt class="text-slate-500 dark:text-slate-400">To Do</dt>
-                <dd class="text-lg font-semibold">{{ project.todo_count }}</dd>
-              </div>
-              <div class="rounded-lg bg-indigo-50 py-2 dark:bg-indigo-950/50">
-                <dt class="text-indigo-600 dark:text-indigo-300">In Progress</dt>
-                <dd class="text-lg font-semibold">{{ project.in_progress_count }}</dd>
-              </div>
-              <div class="rounded-lg bg-emerald-50 py-2 dark:bg-emerald-950/50">
-                <dt class="text-emerald-700 dark:text-emerald-300">Done</dt>
-                <dd class="text-lg font-semibold">{{ project.done_count }}</dd>
-              </div>
-            </dl>
-            <p class="mt-4 text-xs text-slate-500 dark:text-slate-400">
-              {{ project.member_count }} member{{ project.member_count|pluralize }}
-              · owned by {% if project.owner_id == user.id %}you{% else %}{{ project.owner.name }}{% endif %}
-            </p>
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <div class="card p-10 text-center">
-      <h2 class="font-semibold">No projects yet</h2>
-      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Create your first project, or ask a teammate to invite you.</p>
-      <a href="{% url 'projects:create' %}" class="btn-primary mt-4">Create a project</a>
+  {# ---- Four summary cards ---- #}
+  <section class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4" aria-label="Summary">
+    {% for s in d.summaries %}
+      <a href="{{ s.url }}" class="card card-hover flex flex-col justify-between gap-4 p-4 sm:gap-5 sm:p-5">
+        <div class="flex items-start justify-between gap-3">
+          <h2 class="text-sm font-semibold sm:text-[15px]">{{ s.title }}</h2>
+          <span class="text-2xl font-bold leading-none tracking-tight text-ink dark:text-white">{{ s.count }}</span>
+        </div>
+        <div class="flex items-center gap-3">
+          {% if s.people %}{% avatar_stack s.people 2 "sm" %}{% endif %}
+          <span class="truncate text-xs text-muted">{{ s.caption }}</span>
+        </div>
+      </a>
+    {% endfor %}
+  </section>
+
+  {# ---- Two wide cards: team and starred ---- #}
+  <section class="mt-4 grid gap-4 lg:grid-cols-2" aria-label="Team and starred projects">
+    <div id="team" class="card flex flex-wrap items-center justify-between gap-5 p-5">
+      <div class="min-w-0">
+        <h2 class="text-[15px] font-semibold">Your team</h2>
+        <p class="mt-0.5 text-xs text-muted">Everyone you share a project with</p>
+        <div class="mt-4 flex items-center gap-3">
+          {% if d.team %}
+            <span class="avatar-stack inline-flex">{% for person in d.team|slice:":5" %}{% avatar person "md" %}{% endfor %}</span>
+            {% if d.team|length > 5 %}<span class="text-xs text-muted">+ {{ d.team|length|add:"-5"|stringformat:"02d" }}</span>{% endif %}
+          {% else %}
+            <span class="text-sm text-muted">No teammates yet.</span>
+          {% endif %}
+        </div>
+      </div>
+      {# Invites happen on a project you own; with none yet, start by creating one. #}
+      <a href="{% if d.invite_project %}{% url 'projects:members' d.invite_project.pk %}{% else %}{% url 'projects:create' %}{% endif %}" class="btn-secondary">
+        {% include "components/icon.html" with name="user-plus" class="h-4 w-4" %} Invite teammate
+      </a>
     </div>
+
+    <div class="card flex flex-wrap items-center justify-between gap-5 p-5">
+      <div class="min-w-0">
+        <h2 class="text-[15px] font-semibold">Starred projects</h2>
+        <p class="mt-0.5 text-xs text-muted">Your favourites, one click away</p>
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+          {% for p in d.starred|slice:":4" %}
+            <a href="{{ p.get_absolute_url }}" class="inline-flex items-center gap-2 rounded-full border border-line bg-white py-1 pl-1 pr-3 text-xs font-medium hover:border-indigo-300 dark:border-line-dark dark:bg-canvas-dark">
+              {% project_avatar p "xs" %} {{ p.name|truncatechars:22 }}
+            </a>
+          {% empty %}
+            <span class="text-sm text-muted">Star a project to pin it here.</span>
+          {% endfor %}
+        </div>
+      </div>
+      <a href="{% url 'projects:create' %}" class="btn-secondary">
+        {% include "components/icon.html" with name="plus" class="h-4 w-4" %} Create project
+      </a>
+    </div>
+  </section>
+
+  {% if d.projects %}
+    {# ---- Recently viewed ---- #}
+    <section class="card mt-4 p-5" aria-labelledby="recent-heading">
+      <h2 id="recent-heading" class="mb-4 text-[15px] font-semibold">Recently viewed projects</h2>
+      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {% for project in d.recent %}{% include "projects/partials/project_card.html" %}{% endfor %}
+      </div>
+    </section>
+
+    {# ---- All projects, filterable ---- #}
+    <section id="all-projects" class="card mt-4 scroll-mt-20 p-5" aria-labelledby="all-heading">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h2 id="all-heading" class="text-[15px] font-semibold">{{ d.view_label }}</h2>
+        <nav class="flex flex-wrap gap-1 rounded-xl bg-canvas p-1 text-sm dark:bg-canvas-dark" aria-label="Filter projects">
+          {% for key, label in views.items %}
+            <a href="?view={{ key }}#all-projects" {% if d.view == key %}aria-current="page"{% endif %}
+               class="rounded-lg px-3 py-1.5 font-medium transition {% if d.view == key %}bg-white text-ink shadow-soft dark:bg-surface-dark dark:text-white{% else %}text-muted hover:text-ink dark:hover:text-white{% endif %}">{{ label }}</a>
+          {% endfor %}
+        </nav>
+      </div>
+      {% if d.grid %}
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {% for project in d.grid %}{% include "projects/partials/project_card.html" %}{% endfor %}
+        </div>
+      {% else %}
+        <p class="py-10 text-center text-sm text-muted">Nothing here yet.</p>
+      {% endif %}
+    </section>
+  {% else %}
+    <section class="card mt-4 grid place-items-center gap-3 p-12 text-center">
+      <span class="grid h-14 w-14 place-items-center rounded-2xl bg-indigo-50 text-indigo-500 dark:bg-indigo-500/10">{% include "components/icon.html" with name="grid" class="h-7 w-7" %}</span>
+      <h2 class="text-lg font-semibold">No projects yet</h2>
+      <p class="max-w-sm text-sm text-muted">Create your first project, or ask a teammate to invite you.</p>
+      <a href="{% url 'projects:create' %}" class="btn-primary mt-2">Create a project</a>
+    </section>
   {% endif %}
+  {% endwith %}
 {% endblock content %}

@@ -7,6 +7,7 @@ app_name = "projects"
 urlpatterns = [
     path("", views.DashboardView.as_view(), name="dashboard"),
     path("new/", views.ProjectCreateView.as_view(), name="create"),
+    path("<int:pk>/star/", views.toggle_star, name="toggle_star"),
     path("<int:pk>/members/", views.ProjectMembersView.as_view(), name="members"),
     path("<int:pk>/edit/", views.ProjectUpdateView.as_view(), name="update"),
     path("<int:pk>/delete/", views.ProjectDeleteView.as_view(), name="delete"),

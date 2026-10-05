@@ -9,17 +9,20 @@ Without HTMX, the same URLs render full pages and redirect, so nothing depends o
 """
 
 import csv
+import datetime
 import json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
+from django.db.models import Count, F
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
+from projects import services as project_services
 from projects.htmx import is_htmx
 from projects.models import Project
 from projects.permissions import ProjectMemberMixin, get_membership
@@ -47,6 +50,13 @@ def board_columns(project: Project, filters: BoardFilterForm, user) -> list[dict
 
 
 class BoardView(ProjectMemberMixin, TemplateView):
+    def get(self, request, *args, **kwargs):
+        # Opening the board counts as a visit for "Recently viewed"; its own HTMX
+        # refreshes and filter changes don't.
+        if not is_htmx(request):
+            project_services.record_view(self.membership)
+        return super().get(request, *args, **kwargs)
+
     def get_template_names(self):
         # Filters and refreshes only need the board, not the whole page.
         if is_htmx(self.request):
@@ -224,3 +234,31 @@ def comment_create(request: HttpRequest, project_pk: int, pk: int) -> HttpRespon
         # The card's comment count changed, so the board behind the modal refreshes.
         response["HX-Trigger"] = "boardChanged"
     return response
+
+
+# --- My tasks (across projects) ---------------------------------------------------
+
+
+@login_required
+def my_tasks(request: HttpRequest) -> HttpResponse:
+    """Open tasks across every project, assigned to me (or to anyone with ?everyone=1).
+
+    ?due=week narrows it to tasks due in the next 7 days, including overdue ones.
+    """
+    tasks = (
+        Task.objects.filter(project__in=Project.objects.for_user(request.user))
+        .exclude(status=Task.Status.DONE)
+        .select_related("project", "assignee")
+    )
+    everyone = request.GET.get("everyone") == "1"
+    if not everyone:
+        tasks = tasks.filter(assignee=request.user)
+    due_week = request.GET.get("due") == "week"
+    if due_week:
+        tasks = tasks.filter(due_date__lte=timezone.localdate() + datetime.timedelta(days=7))
+    tasks = tasks.order_by(F("due_date").asc(nulls_last=True), "project__name", "position")
+    return render(
+        request,
+        "tasks/my_tasks.html",
+        {"tasks": tasks, "everyone": everyone, "due_week": due_week},
+    )

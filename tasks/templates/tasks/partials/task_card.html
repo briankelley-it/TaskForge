@@ -1,4 +1,4 @@
-<li id="task-{{ task.pk }}"
+{% load taskforge %}<li id="task-{{ task.pk }}"
     data-move-url="{% url 'tasks:move' project.pk task.pk %}"
     hx-get="{% url 'tasks:detail' project.pk task.pk %}" hx-target="#modal" hx-swap="innerHTML"
     hx-trigger="click, keyup[key=='Enter']"
@@ -25,8 +25,7 @@
       </span>
     {% endif %}
     {% if task.assignee %}
-      <span class="ml-auto grid h-6 w-6 place-items-center rounded-full bg-indigo-600 text-[10px] font-semibold uppercase text-white"
-            title="Assigned to {{ task.assignee.name }}">{{ task.assignee.name|slice:":2" }}</span>
+      <span class="ml-auto">{% avatar task.assignee "xs" %}</span>
     {% endif %}
   </div>
 </li>

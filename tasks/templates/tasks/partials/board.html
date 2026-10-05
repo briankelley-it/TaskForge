@@ -13,12 +13,12 @@
     </p>
   {% endif %}
   {% for column in columns %}
-    <section class="flex flex-col rounded-xl bg-slate-100 p-3 dark:bg-slate-800/60" aria-labelledby="col-{{ column.status }}">
+    <section class="flex flex-col rounded-2xl border border-line bg-white/70 p-3 dark:border-line-dark dark:bg-surface-dark/60" aria-labelledby="col-{{ column.status }}">
       <header class="mb-3 flex items-center justify-between px-1">
         <h2 id="col-{{ column.status }}" class="flex items-center gap-2 text-sm font-semibold">
           <span class="h-2 w-2 rounded-full {% if column.status == 'todo' %}bg-slate-400{% elif column.status == 'in_progress' %}bg-indigo-500{% else %}bg-emerald-500{% endif %}"></span>
           {{ column.label }}
-          <span class="rounded-full bg-white px-2 text-xs font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-300">{{ column.tasks|length }}</span>
+          <span class="rounded-full bg-canvas px-2 text-xs font-medium text-muted dark:bg-white/5">{{ column.tasks|length }}</span>
         </h2>
         <a href="{% url 'tasks:create' project.pk %}?status={{ column.status }}"
            hx-get="{% url 'tasks:create' project.pk %}?status={{ column.status }}" hx-target="#modal" hx-swap="innerHTML"
@@ -28,7 +28,7 @@
       {# No whitespace inside the list when it's empty, so the :empty placeholder shows. #}
       {# While filtering, data-sortable is left off so app.js doesn't enable dragging. #}
       <ul {% if not filtering %}data-sortable{% endif %} data-status="{{ column.status }}"
-          class="min-h-24 flex-1 space-y-2 rounded-lg empty:border-2 empty:border-dashed empty:border-slate-300 empty:before:block empty:before:p-6 empty:before:text-center empty:before:text-xs empty:before:text-slate-400 {% if filtering %}empty:before:content-['No_matching_tasks']{% else %}empty:before:content-['Drop_tasks_here']{% endif %} dark:empty:border-slate-600">{% for task in column.tasks %}{% include "tasks/partials/task_card.html" %}{% endfor %}</ul>
+          class="min-h-24 flex-1 space-y-2 rounded-lg empty:border-2 empty:border-dashed empty:border-line empty:before:block empty:before:p-6 empty:before:text-center empty:before:text-xs empty:before:text-slate-400 {% if filtering %}empty:before:content-['No_matching_tasks']{% else %}empty:before:content-['Drop_tasks_here']{% endif %} dark:empty:border-line-dark">{% for task in column.tasks %}{% include "tasks/partials/task_card.html" %}{% endfor %}</ul>
     </section>
   {% endfor %}
 </div>

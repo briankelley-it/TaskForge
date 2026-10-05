@@ -1,0 +1,12 @@
+{# Star toggle. HTMX swaps just this button; without JS it's a normal POST. #}
+<form method="post" action="{% url 'projects:toggle_star' project.pk %}"
+      hx-post="{% url 'projects:toggle_star' project.pk %}" hx-target="this" hx-swap="outerHTML"
+      class="shrink-0">
+  {% csrf_token %}
+  <button type="submit" aria-pressed="{{ project.is_starred|yesno:'true,false' }}"
+          aria-label="{% if project.is_starred %}Unstar{% else %}Star{% endif %} {{ project.name }}"
+          title="{% if project.is_starred %}Starred{% else %}Star this project{% endif %}"
+          class="grid h-8 w-8 cursor-pointer place-items-center rounded-lg transition hover:bg-amber-50 dark:hover:bg-amber-500/10 {% if project.is_starred %}text-amber-400{% else %}text-slate-300 hover:text-amber-400 dark:text-slate-600{% endif %}">
+    <svg viewBox="0 0 24 24" class="h-5 w-5" aria-hidden="true" fill="{% if project.is_starred %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M11.48 3.5a.56.56 0 0 1 1.04 0l2.13 5.11a.56.56 0 0 0 .47.35l5.52.44c.5.04.7.66.32.99l-4.2 3.6a.56.56 0 0 0-.18.56l1.28 5.39a.56.56 0 0 1-.84.61l-4.73-2.88a.56.56 0 0 0-.58 0l-4.73 2.88a.56.56 0 0 1-.84-.61l1.28-5.39a.56.56 0 0 0-.18-.56l-4.2-3.6a.56.56 0 0 1 .32-.99l5.52-.44a.56.56 0 0 0 .47-.35z"/></svg>
+  </button>
+</form>

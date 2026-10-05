@@ -47,6 +47,8 @@ class ProjectMemberMixin(LoginRequiredMixin):
             project_id = kwargs.get(self.project_url_kwarg, kwargs.get("pk"))
             self.membership = get_membership(request.user, project_id, owner_only=self.owner_only)
             self.project = self.membership.project
+            # Templates show the star state on the project, as on the dashboard.
+            self.project.is_starred = self.membership.is_starred
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

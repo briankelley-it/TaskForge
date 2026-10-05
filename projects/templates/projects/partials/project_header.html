@@ -1,27 +1,44 @@
+{% load taskforge %}
 {# Shared header for project pages. Expects `project`, `membership` and `active_tab`. #}
-<nav class="mb-2 text-sm"><a href="{% url 'projects:dashboard' %}" class="link">← All projects</a></nav>
-<div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-  <div class="min-w-0">
-    <h1 class="truncate text-2xl font-bold tracking-tight">{{ project.name }}</h1>
-    {% if project.description %}
-      <p class="mt-1 max-w-2xl whitespace-pre-line text-sm text-slate-600 dark:text-slate-400">{{ project.description }}</p>
-    {% endif %}
-  </div>
-  {% if membership.is_owner %}
-    <div class="flex gap-2">
-      <a href="{% url 'projects:update' project.pk %}" class="btn-secondary">Edit</a>
-      <a href="{% url 'projects:delete' project.pk %}" class="btn-secondary text-red-600 dark:text-red-400">Delete</a>
+<section class="card mb-4 p-5">
+  <nav class="flex items-center gap-1 text-xs text-muted" aria-label="Breadcrumb">
+    <a href="{% url 'projects:dashboard' %}" class="hover:text-ink dark:hover:text-white">My workspace</a>
+    {% include "components/icon.html" with name="chevron-right" class="h-3 w-3" %}
+    <span class="truncate text-slate-600 dark:text-slate-300" aria-current="page">{{ project.name }}</span>
+  </nav>
+
+  <div class="mt-3 flex flex-wrap items-start justify-between gap-4">
+    <div class="flex min-w-0 items-start gap-3">
+      {% project_avatar project "lg" %}
+      <div class="min-w-0">
+        <div class="flex items-center gap-1">
+          <h1 class="truncate text-xl font-bold tracking-tight sm:text-2xl">{{ project.name }}</h1>
+          {% include "projects/partials/star_button.html" %}
+        </div>
+        {% if project.description %}
+          <p class="mt-0.5 max-w-2xl whitespace-pre-line text-sm text-muted">{{ project.description }}</p>
+        {% endif %}
+      </div>
     </div>
-  {% endif %}
-</div>
-<div class="mb-6 flex gap-1 border-b border-slate-200 text-sm dark:border-slate-700">
+
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="{% url 'projects:members' project.pk %}" class="mr-1 flex items-center gap-2" title="Members">
+        {% avatar_stack project.members.all 4 "sm" %}
+      </a>
+      {% if membership.is_owner %}
+        <a href="{% url 'projects:members' project.pk %}" class="btn-secondary">{% include "components/icon.html" with name="user-plus" class="h-4 w-4" %}<span class="hidden sm:inline">Invite</span></a>
+        <a href="{% url 'projects:update' project.pk %}" class="btn-secondary px-3" title="Edit project" aria-label="Edit project">{% include "components/icon.html" with name="pencil" class="h-4 w-4" %}</a>
+        <a href="{% url 'projects:delete' project.pk %}" class="btn-secondary px-3 text-red-500 hover:text-red-600 dark:text-red-400" title="Delete project" aria-label="Delete project">{% include "components/icon.html" with name="trash" class="h-4 w-4" %}</a>
+      {% endif %}
+    </div>
+  </div>
+
   {% url 'tasks:board' project.pk as board_url %}
-  {% url 'projects:members' project.pk as members_url %}
-  <a href="{{ board_url }}"
-     class="-mb-px border-b-2 px-3 py-2 {% if active_tab == 'board' %}border-indigo-600 font-semibold text-indigo-600 dark:text-indigo-400{% else %}border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200{% endif %}">Board</a>
   {% url 'activity:feed' project.pk as activity_url %}
-  <a href="{{ activity_url }}"
-     class="-mb-px border-b-2 px-3 py-2 {% if active_tab == 'activity' %}border-indigo-600 font-semibold text-indigo-600 dark:text-indigo-400{% else %}border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200{% endif %}">Activity</a>
-  <a href="{{ members_url }}"
-     class="-mb-px border-b-2 px-3 py-2 {% if active_tab == 'members' %}border-indigo-600 font-semibold text-indigo-600 dark:text-indigo-400{% else %}border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200{% endif %}">Members</a>
-</div>
+  {% url 'projects:members' project.pk as members_url %}
+  <nav class="mt-5 flex w-fit gap-1 rounded-xl bg-canvas p-1 text-sm dark:bg-canvas-dark" aria-label="Project sections">
+    <a href="{{ board_url }}" {% if active_tab == 'board' %}aria-current="page"{% endif %} class="rounded-lg px-4 py-1.5 font-medium transition {% if active_tab == 'board' %}bg-white text-ink shadow-soft dark:bg-surface-dark dark:text-white{% else %}text-muted hover:text-ink dark:hover:text-white{% endif %}">Board</a>
+    <a href="{{ activity_url }}" {% if active_tab == 'activity' %}aria-current="page"{% endif %} class="rounded-lg px-4 py-1.5 font-medium transition {% if active_tab == 'activity' %}bg-white text-ink shadow-soft dark:bg-surface-dark dark:text-white{% else %}text-muted hover:text-ink dark:hover:text-white{% endif %}">Activity</a>
+    <a href="{{ members_url }}" {% if active_tab == 'members' %}aria-current="page"{% endif %} class="rounded-lg px-4 py-1.5 font-medium transition {% if active_tab == 'members' %}bg-white text-ink shadow-soft dark:bg-surface-dark dark:text-white{% else %}text-muted hover:text-ink dark:hover:text-white{% endif %}">Members</a>
+  </nav>
+</section>

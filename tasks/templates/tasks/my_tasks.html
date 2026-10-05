@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load taskforge %}
+{% block head_title %}{% if due_week %}Due this week{% else %}My tasks{% endif %}{% endblock head_title %}
+{% block content %}
+  <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <p class="flex items-center gap-1 text-xs text-muted">My workspace {% include "components/icon.html" with name="chevron-right" class="h-3 w-3" %} Tasks</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight">{% if due_week %}Due this week{% else %}My tasks{% endif %}</h1>
+    </div>
+    <nav class="flex flex-wrap gap-1 rounded-xl bg-white p-1 text-sm shadow-soft dark:bg-surface-dark" aria-label="Task views">
+      {% url 'my_tasks' as base %}
+      <a href="{{ base }}" class="rounded-lg px-3 py-1.5 font-medium {% if not everyone and not due_week %}bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300{% else %}text-muted hover:text-ink{% endif %}">Assigned to me</a>
+      <a href="{{ base }}?due=week" class="rounded-lg px-3 py-1.5 font-medium {% if due_week and not everyone %}bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300{% else %}text-muted hover:text-ink{% endif %}">Mine, due this week</a>
+      <a href="{{ base }}?due=week&everyone=1" class="rounded-lg px-3 py-1.5 font-medium {% if due_week and everyone %}bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300{% else %}text-muted hover:text-ink{% endif %}">Everyone, due this week</a>
+    </nav>
+  </div>
+
+  <section class="card divide-y divide-line overflow-hidden dark:divide-line-dark">
+    {% for task in tasks %}
+      <a href="{{ task.get_absolute_url }}" class="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5 transition hover:bg-canvas/60 dark:hover:bg-white/5">
+        <span class="h-2.5 w-2.5 shrink-0 rounded-full {% if task.status == 'in_progress' %}bg-amber-400{% else %}bg-slate-300 dark:bg-slate-500{% endif %}" title="{{ task.get_status_display }}"></span>
+        <span class="min-w-0 flex-1">
+          <span class="block truncate text-sm font-medium">{{ task.title }}</span>
+          <span class="flex items-center gap-1 truncate text-xs text-muted">{{ task.project.name }} {% include "components/icon.html" with name="chevron-right" class="h-3 w-3" %} {{ task.get_status_display }}</span>
+        </span>
+        {% if task.is_overdue %}
+          <span class="rounded-lg bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-300">Overdue · {{ task.due_date|date:"M j" }}</span>
+        {% elif task.is_due_soon %}
+          <span class="rounded-lg bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">Due soon · {{ task.due_date|date:"M j" }}</span>
+        {% elif task.due_date %}
+          <span class="text-xs text-muted">Due {{ task.due_date|date:"M j" }}</span>
+        {% endif %}
+        <span class="rounded-lg px-2 py-1 text-xs font-medium {% if task.priority == 'high' %}bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-300{% elif task.priority == 'medium' %}bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300{% else %}bg-slate-100 text-slate-600 dark:bg-white/5 dark:text-slate-300{% endif %}">{{ task.get_priority_display }}</span>
+        {% if everyone %}{% if task.assignee %}{% avatar task.assignee "xs" %}{% else %}<span class="h-6 w-6"></span>{% endif %}{% endif %}
+      </a>
+    {% empty %}
+      <div class="grid place-items-center gap-2 px-5 py-14 text-center">
+        <span class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10">{% include "components/icon.html" with name="clipboard" %}</span>
+        <p class="font-semibold">Nothing to do here</p>
+        <p class="text-sm text-muted">{% if due_week %}No open tasks are due in the next 7 days.{% else %}No open tasks are assigned to you.{% endif %}</p>
+      </div>
+    {% endfor %}
+  </section>
+{% endblock content %}
