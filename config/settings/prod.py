@@ -1,7 +1,13 @@
+from django.core.exceptions import ImproperlyConfigured
+
 from .base import *  # noqa: F403
-from .base import env
+from .base import SECRET_KEY, env
 
 DEBUG = False
+
+# Fail loudly instead of running production with the placeholder from .env.example.
+if SECRET_KEY.startswith("change-me") or len(SECRET_KEY) < 50:
+    raise ImproperlyConfigured("Set a real SECRET_KEY (50+ random characters) for production.")
 
 # Hashed, compressed static files with far-future cache headers.
 STORAGES = {

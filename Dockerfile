@@ -34,11 +34,15 @@ COPY --from=css /app/static/css/app.css static/css/app.css
 COPY --from=css /usr/local/bin/tailwindcss /usr/local/bin/tailwindcss
 
 # collectstatic needs settings to import, but not a real secret or database.
-RUN DJANGO_SETTINGS_MODULE=config.settings.prod SECRET_KEY=build-only \
+# This throwaway key only exists during the build and never signs anything.
+RUN DJANGO_SETTINGS_MODULE=config.settings.prod \
+    SECRET_KEY=build-only-placeholder-not-used-at-runtime-xxxxxxxxxxxxxxxx \
     DATABASE_URL=sqlite:///tmp/build.db python manage.py collectstatic --noinput
 
 RUN useradd --create-home appuser && chown -R appuser /app
 USER appuser
 
 EXPOSE 8000
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+# Shell form so hosts can set PORT and WEB_CONCURRENCY. Run migrations as a release step:
+#   python manage.py migrate --noinput
+CMD gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-3} --access-logfile -

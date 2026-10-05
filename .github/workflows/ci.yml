@@ -45,4 +45,11 @@ jobs:
           cache-dependency-path: requirements/*.txt
       - run: pip install -r requirements/dev.txt
       - run: python manage.py makemigrations --check --dry-run
+      - name: Production settings pass Django's deploy checks
+        run: |
+          export SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(50))')"
+          python manage.py check --deploy --fail-level WARNING
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.prod
+          ALLOWED_HOSTS: taskforge.example.com
       - run: pytest --cov --cov-report=term-missing --cov-fail-under=70
