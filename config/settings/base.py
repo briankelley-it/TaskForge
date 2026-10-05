@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "allauth.account",
     # Local apps
     "accounts",
+    "projects",
 ]
 
 MIDDLEWARE = [
@@ -86,7 +87,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 LOGIN_URL = "account_login"
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = "projects:dashboard"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 
 # allauth: log in with email only. The User model has no username column.
