@@ -151,3 +151,12 @@ class TestSeedDemo:
         out = io.StringIO()
         call_command("seed_demo", stdout=out)
         assert DEMO_EMAIL in out.getvalue()
+
+
+def test_seed_demo_if_missing_only_runs_once():
+    call_command("seed_demo", "--if-missing", stdout=io.StringIO())
+    first = set(Task.objects.values_list("pk", flat=True))
+    out = io.StringIO()
+    call_command("seed_demo", "--if-missing", stdout=out)
+    assert "already exists" in out.getvalue()
+    assert set(Task.objects.values_list("pk", flat=True)) == first

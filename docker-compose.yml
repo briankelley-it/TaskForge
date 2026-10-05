@@ -1,8 +1,14 @@
 # Local development: Django's runserver with live reload, plus Postgres 16.
+#
+# One command: `docker compose up`. No .env file is needed. Every value below has a safe
+# development default, and a .env file (copied from .env.example) overrides any of them.
 services:
   db:
     image: postgres:16-alpine
-    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-taskforge}
+      POSTGRES_USER: ${POSTGRES_USER:-taskforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-taskforge}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -18,10 +24,19 @@ services:
       context: .
       args:
         REQUIREMENTS: requirements/dev.txt
-    env_file: .env
+    # Optional extras such as GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET.
+    env_file:
+      - path: .env
+        required: false
     environment:
       # The image defaults to production settings; local development uses dev.
       DJANGO_SETTINGS_MODULE: config.settings.dev
+      DEBUG: ${DEBUG:-True}
+      # Development-only fallback key. Production refuses to start with it (config/settings/prod.py).
+      SECRET_KEY: ${SECRET_KEY:-change-me-local-development-only}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-http://localhost:8000,http://127.0.0.1:8000}
+      DATABASE_URL: postgres://${POSTGRES_USER:-taskforge}:${POSTGRES_PASSWORD:-taskforge}@db:5432/${POSTGRES_DB:-taskforge}
     command: ["sh", "scripts/dev-entrypoint.sh"]
     volumes:
       # Mount the code so edits show up without rebuilding the image.

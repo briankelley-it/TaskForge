@@ -80,9 +80,17 @@ class Command(BaseCommand):
             default=DEFAULT_PASSWORD,
             help=f"Password for {DEMO_EMAIL} (default: {DEFAULT_PASSWORD})",
         )
+        parser.add_argument(
+            "--if-missing",
+            action="store_true",
+            help="Do nothing if the demo user already exists (used on container start).",
+        )
 
     @transaction.atomic
-    def handle(self, *args, password: str, **options):
+    def handle(self, *args, password: str, if_missing: bool = False, **options):
+        if if_missing and User.objects.filter(email=DEMO_EMAIL).exists():
+            self.stdout.write("Demo data already exists; leaving it alone.")
+            return
         rng = random.Random(42)  # same demo every time
         today = timezone.localdate()
 
