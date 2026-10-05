@@ -60,6 +60,14 @@ class Task(models.Model):
         return reverse("tasks:update", kwargs={"project_pk": self.project_id, "pk": self.pk})
 
     @property
+    def is_due_soon(self) -> bool:
+        """Due today or in the next two days, and not finished."""
+        if self.due_date is None or self.status == self.Status.DONE:
+            return False
+        days_left = (self.due_date - timezone.localdate()).days
+        return 0 <= days_left <= 2
+
+    @property
     def is_overdue(self) -> bool:
         return (
             self.due_date is not None
