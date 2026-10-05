@@ -1,0 +1,9 @@
+{% extends "allauth/layouts/base.html" %}
+{# Account management pages (email, password change, logout confirmation). #}
+{% block main %}
+  <main class="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
+    <div class="card form-stack p-6 sm:p-8">
+      {% block content %}{% endblock content %}
+    </div>
+  </main>
+{% endblock main %}

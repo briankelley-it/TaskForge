@@ -1,0 +1,29 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block head_title %}{% endblock head_title %} · TaskForge</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <script src="{% static 'js/htmx.min.js' %}" defer></script>
+    <script src="{% static 'js/app.js' %}" defer></script>
+    {% block extra_head %}{% endblock extra_head %}
+  </head>
+  {# Every HTMX request sends the CSRF token as a header, so POSTs from hx-post just work. #}
+  <body class="flex min-h-full flex-col bg-slate-50 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    {% include "components/navbar.html" %}
+    {% include "components/messages.html" %}
+
+    {% block main %}
+      <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+        {% block content %}{% endblock content %}
+      </main>
+    {% endblock main %}
+
+    <footer class="border-t border-slate-200 py-6 text-center text-xs text-slate-500 dark:border-slate-800">
+      TaskForge · built with Django and HTMX
+    </footer>
+    {% block extra_body %}{% endblock extra_body %}
+  </body>
+</html>

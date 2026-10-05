@@ -1,0 +1,66 @@
+/*
+ * Tailwind entry point. The standalone CLI compiles this into static/css/app.css:
+ *   tailwindcss -i assets/tailwind.css -o static/css/app.css --minify
+ */
+@import "tailwindcss" source(none);
+
+/* Only scan our own templates and JS for class names. */
+@source "../templates";
+@source "../*/templates";
+@source "../static/js/app.js";
+
+/* Dark mode follows a "dark" class on <html> so it can be toggled, not just follow the OS. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Reusable building blocks. @utility (not plain classes) so they can be combined with @apply. */
+@utility btn {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2
+    text-sm font-medium transition focus:outline-none focus-visible:ring-2
+    focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50
+    dark:focus-visible:ring-offset-slate-900;
+}
+@utility btn-primary {
+  @apply btn bg-indigo-600 text-white hover:bg-indigo-500;
+}
+@utility btn-secondary {
+  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50
+    dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700;
+}
+@utility btn-danger {
+  @apply btn bg-red-600 text-white hover:bg-red-500;
+}
+@utility card {
+  @apply rounded-xl border border-slate-200 bg-white shadow-sm
+    dark:border-slate-700 dark:bg-slate-800;
+}
+@utility link {
+  @apply font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400;
+}
+
+@layer components {
+  /* Form fields rendered by Django or allauth, which can't easily take per-widget classes. */
+  .form-stack p {
+    @apply mb-4;
+  }
+  .form-stack label {
+    @apply mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300;
+  }
+  .form-stack input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .form-stack select,
+  .form-stack textarea {
+    @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm
+      text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500
+      focus:ring-2 focus:ring-indigo-500/30 focus:outline-none
+      dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100;
+  }
+  .form-stack input[type="checkbox"] {
+    @apply mr-2 h-4 w-4 rounded border-slate-300 text-indigo-600;
+  }
+  .form-stack .helptext,
+  .form-stack .help-text {
+    @apply mt-1 block text-xs text-slate-500 dark:text-slate-400;
+  }
+  .form-stack ul.errorlist {
+    @apply mb-2 text-sm text-red-600 dark:text-red-400;
+  }
+}
