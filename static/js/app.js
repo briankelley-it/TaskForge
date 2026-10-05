@@ -1,6 +1,19 @@
 // Site-wide behaviour. Most interactivity is HTMX attributes in the templates; this file
 // only covers what HTMX can't do alone: dismissing messages, the modal, and drag and drop.
 
+// ---- Dark mode ------------------------------------------------------------------------
+// base.html sets the starting theme before paint; this flips it and remembers the choice.
+
+document.addEventListener("click", (event) => {
+  if (!event.target.closest("[data-theme-toggle]")) return;
+  const dark = document.documentElement.classList.toggle("dark");
+  try {
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  } catch (e) {
+    // Private browsing can block storage; the toggle still works for this page.
+  }
+});
+
 // ---- Dismissible messages and the modal -----------------------------------------------
 
 function closeModal() {

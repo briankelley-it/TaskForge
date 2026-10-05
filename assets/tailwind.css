@@ -15,6 +15,11 @@
 /* Dark mode follows a "dark" class on <html> so it can be toggled, not just follow the OS. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Native controls (date pickers, scrollbars, select menus) follow the theme too. */
+html.dark {
+  color-scheme: dark;
+}
+
 /* Reusable building blocks. @utility (not plain classes) so they can be combined with @apply. */
 @utility btn {
   @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2

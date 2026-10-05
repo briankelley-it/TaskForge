@@ -1,15 +1,31 @@
 {% extends "base.html" %}
-{% block head_title %}Home{% endblock head_title %}
+{% block head_title %}Kanban for small teams{% endblock head_title %}
 {% block content %}
-  <section class="mx-auto max-w-2xl py-16 text-center">
-    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">Ship work, not status updates.</h1>
+  <section class="mx-auto max-w-2xl py-10 text-center sm:py-16">
+    {% include "components/logo.html" with class="mx-auto h-16 w-16" prefix="hero" %}
+    <h1 class="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">Ship work, not status updates.</h1>
     <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
-      TaskForge is a simple Kanban board for small teams. Create a project, invite your teammates
-      and drag tasks from To Do to Done.
+      TaskForge is a fast, simple Kanban board for small teams. Create a project, invite your
+      teammates and drag tasks from To Do to Done.
     </p>
-    <div class="mt-8 flex justify-center gap-3">
-      <a href="{% url 'account_signup' %}" class="btn-primary">Get started</a>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="{% url 'account_signup' %}" class="btn-primary">Get started free</a>
       <a href="{% url 'account_login' %}" class="btn-secondary">Log in</a>
+    </div>
+  </section>
+
+  <section class="mx-auto grid max-w-4xl gap-4 pb-8 sm:grid-cols-3" aria-label="Features">
+    <div class="card p-5">
+      <h2 class="font-semibold">Drag-and-drop board</h2>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Move cards between columns and reorder them. Changes save instantly, no page reloads.</p>
+    </div>
+    <div class="card p-5">
+      <h2 class="font-semibold">Find anything fast</h2>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Live search plus filters for your tasks, overdue work and priority.</p>
+    </div>
+    <div class="card p-5">
+      <h2 class="font-semibold">Stay in the loop</h2>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Comment on tasks and follow every change in the project's activity feed.</p>
     </div>
   </section>
 {% endblock content %}

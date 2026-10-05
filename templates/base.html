@@ -4,8 +4,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block head_title %}{% endblock head_title %} · TaskForge</title>
+    <meta name="description" content="TaskForge: a fast, simple Kanban board for small teams.">
     <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
     <meta name="theme-color" content="#4f46e5">
+    {# Runs before the stylesheet paints, so a dark-mode user never sees a white flash. #}
+    <script>
+      try {
+        const saved = localStorage.getItem("theme");
+        if (saved === "dark" || (!saved && matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    </script>
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <script src="{% static 'js/htmx.min.js' %}" defer></script>
     <script src="{% static 'js/app.js' %}" defer></script>
@@ -14,11 +25,12 @@
   {# Every HTMX request sends the CSRF token as a header, so POSTs from hx-post just work. #}
   <body class="flex min-h-full flex-col bg-slate-50 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100"
         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
     {% include "components/navbar.html" %}
     {% include "components/messages.html" %}
 
     {% block main %}
-      <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+      <main id="content" class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {% block content %}{% endblock content %}
       </main>
     {% endblock main %}

@@ -1,0 +1,20 @@
+{# The TF monogram, inline so its outline can follow dark mode (static/img/logo.svg is the favicon). #}
+{# Pass a unique `prefix` when it appears more than once on a page, so gradient ids don't clash. #}
+{% with p=prefix|default:"tf" %}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" class="{{ class|default:'h-8 w-8' }}">
+  <defs>
+    <linearGradient id="{{ p }}-indigo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="{{ p }}-ember" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <g stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" class="text-indigo-950 dark:text-indigo-100">
+    <path fill="url(#{{ p }}-indigo)" d="M2 3H16V9H12V29H6V9H2Z"/>
+    <path fill="url(#{{ p }}-ember)" d="M16 3H30V9H22V14H27V19.5H22V29H16Z"/>
+  </g>
+</svg>
+{% endwith %}
