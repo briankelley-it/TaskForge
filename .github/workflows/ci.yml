@@ -18,6 +18,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # only used to publish the coverage badge to the "badges" branch
     services:
       postgres:
         image: postgres:16-alpine
@@ -52,4 +54,20 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: config.settings.prod
           ALLOWED_HOSTS: taskforge.example.com
-      - run: pytest --cov --cov-report=term-missing --cov-fail-under=70
+      - run: pytest --cov --cov-report=term-missing --cov-report=json --cov-fail-under=70
+
+      # The README's coverage badge reads badges/coverage.json from the "badges" branch, so it
+      # always shows the real number from the latest main build. Main's history is untouched.
+      - name: Publish coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pct=$(python -c "import json; print(round(json.load(open('coverage.json'))['totals']['percent_covered']))")
+          if [ "$pct" -ge 90 ]; then colour=brightgreen; elif [ "$pct" -ge 70 ]; then colour=yellow; else colour=red; fi
+          mkdir -p /tmp/badge && cd /tmp/badge
+          python -c "import json, sys; json.dump({'schemaVersion': 1, 'label': 'coverage', 'message': sys.argv[1] + '%', 'color': sys.argv[2]}, open('coverage.json', 'w'))" "$pct" "$colour"
+          git init -q -b badges
+          git add coverage.json
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Update coverage badge to ${pct}%"
+          git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" badges
